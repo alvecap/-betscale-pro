@@ -22,26 +22,110 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initialisation des particules
-    particlesJS.load('particles-js', 'assets/particles.json', function() {
-        console.log('particles.js loaded - callback');
-    });
-    
-    // Gestion des animations lors du défilement
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('show');
+    // Configuration des particules
+    particlesJS('particles-js', {
+        "particles": {
+            "number": {
+                "value": 80,
+                "density": {
+                    "enable": true,
+                    "value_area": 800
+                }
+            },
+            "color": {
+                "value": "#3b82f6"
+            },
+            "shape": {
+                "type": "circle",
+                "stroke": {
+                    "width": 0,
+                    "color": "#000000"
+                }
+            },
+            "opacity": {
+                "value": 0.5,
+                "random": true,
+                "anim": {
+                    "enable": true,
+                    "speed": 1,
+                    "opacity_min": 0.1,
+                    "sync": false
+                }
+            },
+            "size": {
+                "value": 3,
+                "random": true,
+                "anim": {
+                    "enable": true,
+                    "speed": 2,
+                    "size_min": 0.1,
+                    "sync": false
+                }
+            },
+            "line_linked": {
+                "enable": true,
+                "distance": 150,
+                "color": "#60a5fa",
+                "opacity": 0.4,
+                "width": 1
+            },
+            "move": {
+                "enable": true,
+                "speed": 1,
+                "direction": "none",
+                "random": false,
+                "straight": false,
+                "out_mode": "out",
+                "bounce": false,
+                "attract": {
+                    "enable": false,
+                    "rotateX": 600,
+                    "rotateY": 1200
+                }
             }
-        });
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+                "onhover": {
+                    "enable": true,
+                    "mode": "grab"
+                },
+                "onclick": {
+                    "enable": true,
+                    "mode": "push"
+                },
+                "resize": true
+            },
+            "modes": {
+                "grab": {
+                    "distance": 140,
+                    "line_linked": {
+                        "opacity": 1
+                    }
+                },
+                "push": {
+                    "particles_nb": 4
+                }
+            }
+        },
+        "retina_detect": true
     });
     
-    // Observation des éléments à animer
-    document.querySelectorAll('.card, .feature-card').forEach(el => {
-        observer.observe(el);
+    // Animation d'entrée pour les cartes
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 + (index * 100));
     });
     
-    // Ajout d'effets sonores sur les boutons (optionnel)
+    // Effet de clic sur les boutons
     document.querySelectorAll('button').forEach(button => {
         button.addEventListener('click', function() {
             // Effet visuel de clic
@@ -56,4 +140,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Animation continues des icônes
+    const iconEls = document.querySelectorAll('.card-icon');
+    iconEls.forEach(icon => {
+        setInterval(() => {
+            icon.classList.add('pulse');
+            setTimeout(() => {
+                icon.classList.remove('pulse');
+            }, 1000);
+        }, 3000 + Math.random() * 2000);
+    });
+    
+    // Animation du titre
+    const title = document.querySelector('h1');
+    const highlight = document.querySelector('.highlight');
+    
+    setInterval(() => {
+        highlight.style.textShadow = '0 0 15px rgba(255, 193, 7, 0.8)';
+        setTimeout(() => {
+            highlight.style.textShadow = '0 0 10px rgba(255, 193, 7, 0.5)';
+        }, 700);
+    }, 3000);
 });
