@@ -1,539 +1,333 @@
-/* CSS Expert FIFA - BetScale Pro */
-
-/* Variables spécifiques */
-:root {
-    --fifa-primary: #3b82f6;
-    --fifa-secondary: #60a5fa;
-    --fifa-tertiary: #1d4ed8;
-    --fifa-accent: #ffc107;
-    --fifa-card-bg: rgba(30, 41, 59, 0.85);
-    --fifa-form-bg: rgba(15, 23, 42, 0.6);
-    --fifa-success: #10b981;
-    --fifa-error: #ef4444;
-    --fifa-highlight: #f97316;
-}
-
-/* Styles généraux de la section FIFA */
-.fifa-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.back-button {
-    display: inline-flex;
-    align-items: center;
-    color: var(--text-color);
-    text-decoration: none;
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-    padding: 8px 16px;
-    border-radius: 20px;
-    background-color: rgba(30, 41, 59, 0.5);
-    backdrop-filter: blur(5px);
-    transition: all 0.3s ease;
-}
-
-.back-button:hover {
-    background-color: rgba(30, 41, 59, 0.8);
-    transform: translateY(-2px);
-}
-
-.back-button i {
-    margin-right: 8px;
-}
-
-/* Étapes de FIFA Expert */
-.fifa-step {
-    display: none;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.fifa-step.active {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.fifa-card {
-    background: var(--fifa-card-bg);
-    border-radius: 16px;
-    padding: 30px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    margin-bottom: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.fifa-card h2 {
-    color: var(--text-color);
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    text-align: center;
-    position: relative;
-    padding-bottom: 15px;
-}
-
-.fifa-card h2::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--fifa-primary), var(--fifa-secondary));
-    border-radius: 3px;
-}
-
-/* Introduction */
-.fifa-intro {
-    text-align: center;
-}
-
-.fifa-intro-text {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 25px;
-    color: var(--text-color);
-}
-
-.fifa-info-box {
-    background: var(--fifa-form-bg);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-left: 4px solid var(--fifa-accent);
-}
-
-.fifa-info-box p {
-    margin-bottom: 10px;
-}
-
-.fifa-info-box ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.fifa-info-box li {
-    margin: 8px 0;
-    position: relative;
-    padding-left: 20px;
-    color: var(--text-secondary);
-}
-
-.fifa-info-box li::before {
-    content: '▹';
-    position: absolute;
-    left: 0;
-    color: var(--fifa-accent);
-}
-
-/* Boutons */
-.fifa-button {
-    background: linear-gradient(45deg, var(--fifa-tertiary), var(--fifa-primary));
-    color: white;
-    border: none;
-    padding: 12px 28px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.fifa-button::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        to right,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    transform: rotate(30deg);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.fifa-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 7px 25px rgba(59, 130, 246, 0.5);
-}
-
-.fifa-button:hover::after {
-    animation: button-shine 1s forwards;
-}
-
-.fifa-button:disabled {
-    background: linear-gradient(45deg, #64748b, #94a3b8);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 4px 10px rgba(100, 116, 139, 0.3);
-}
-
-.fifa-button.secondary-button {
-    background: linear-gradient(45deg, #334155, #475569);
-    box-shadow: 0 4px 15px rgba(51, 65, 85, 0.3);
-}
-
-.fifa-button.secondary-button:hover {
-    box-shadow: 0 7px 25px rgba(51, 65, 85, 0.5);
-}
-
-.fifa-next-button {
-    margin-top: 20px;
-    width: 100%;
-    max-width: 200px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-@keyframes button-shine {
-    0% {
-        opacity: 0;
-        left: -50%;
-    }
-    30% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 0;
-        left: 120%;
-    }
-}
-
-/* Options de championnat */
-.championship-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-.option-card {
-    background: var(--fifa-form-bg);
-    border-radius: 12px;
-    padding: 20px;
-    width: 200px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.option-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.option-card.selected {
-    border-color: var(--fifa-accent);
-    background: rgba(30, 41, 59, 0.9);
-    box-shadow: 0 0 20px rgba(255, 193, 7, 0.2);
-}
-
-.option-icon {
-    font-size: 2rem;
-    color: var(--fifa-primary);
-    margin-bottom: 15px;
-}
-
-.option-card h3 {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
-}
-
-.option-card p {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-/* Formulaire de prédiction */
-.prediction-form {
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1rem;
-    color: var(--text-color);
-}
-
-.form-group input[type="number"] {
-    width: 100%;
-    padding: 12px 15px;
-    background: var(--fifa-form-bg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: var(--text-color);
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-group input[type="number"]:focus {
-    border-color: var(--fifa-primary);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    outline: none;
-}
-
-.form-group input[type="number"]::placeholder {
-    color: rgba(203, 213, 225, 0.5);
-}
-
-/* Score inputs */
-.score-input {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.score-field {
-    width: 80px !important;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.2rem !important;
-}
-
-.score-separator {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-/* Animation de génération */
-.generation-content {
-    text-align: center;
-}
-
-.generation-animation {
-    margin: 30px 0;
-    position: relative;
-    height: 100px;
-}
-
-.loading-icon {
-    font-size: 2.5rem;
-    color: var(--fifa-primary);
-    margin-bottom: 15px;
-    opacity: 0.8;
-    transition: all 0.3s ease;
-}
-
-.loading-icon .fa-spin {
-    animation: spin 2s linear infinite;
-}
-
-.loading-active {
-    opacity: 1;
-}
-
-#loading-text {
-    color: var(--text-secondary);
-    font-size: 1rem;
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Résultats */
-.results-card {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.result-section {
-    margin-bottom: 25px;
-}
-
-.result-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 12px;
-    font-weight: 500;
-    color: var(--text-secondary);
-}
-
-.result-box {
-    background: var(--fifa-form-bg);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    border-left: 4px solid var(--fifa-primary);
-    transition: all 0.3s ease;
-}
-
-.result-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.result-box.highlight {
-    border-left-color: var(--fifa-accent);
-}
-
-.result-box.secondary {
-    opacity: 0.8;
-    border-left-color: var(--fifa-secondary);
-}
-
-.result-icon {
-    font-size: 1.5rem;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    color: var(--fifa-primary);
-}
-
-.result-box.highlight .result-icon {
-    color: var(--fifa-accent);
-}
-
-.result-value {
-    flex: 1;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.reliability {
-    text-align: right;
-    margin-left: 15px;
-}
-
-.reliability-value {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--fifa-success);
-}
-
-.reliability-label {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-.double-result .result-box-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.result-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-    justify-content: center;
-}
-
-/* Animations */
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.fade-in {
-    animation: fade-in 0.5s forwards;
-}
-
-@keyframes pulse-glow {
-    0% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-    }
-}
-
-.pulse-animation {
-    animation: pulse-glow 2s infinite;
-}
-
-/* Animation de chargement */
-@keyframes loading-progress {
-    0% {
-        width: 0%;
-        background: var(--fifa-primary);
-    }
-    50% {
-        background: var(--fifa-accent);
-    }
-    100% {
-        width: 100%;
-        background: var(--fifa-success);
-    }
-}
-
-.loading-bar {
-    height: 4px;
-    width: 0%;
-    background: var(--fifa-primary);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    border-radius: 4px;
-}
-
-.loading-active .loading-bar {
-    animation: loading-progress 2.5s forwards;
-}
-
-/* Media Queries */
-@media (max-width: 768px) {
-    .fifa-card {
-        padding: 20px;
-    }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expert FIFA - BetScale Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="expert-fifa.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="overlay"></div>
     
-    .fifa-card h2 {
-        font-size: 1.5rem;
-    }
+    <div class="container fifa-container">
+        <!-- Bouton Retour -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+
+        <!-- Compteur de prédictions -->
+        <div class="predictions-counter">
+            <div class="counter-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="counter-info">
+                <span id="predictions-count">5</span> prédictions restantes aujourd'hui
+            </div>
+        </div>
+
+        <!-- Étape 1: Introduction -->
+        <div class="fifa-step" id="step-1">
+            <div class="fifa-card">
+                <h2>Expert FIFA</h2>
+                <div class="fifa-intro">
+                    <p class="fifa-intro-text">Les prédictions sont basées sur un modèle de calcul avancé connecté à une base de données exclusive. Résultats rapides et fiables.</p>
+                    
+                    <div class="fifa-info-box">
+                        <p><strong>Expert FIFA fonctionne uniquement avec les deux jeux suivants (plus à venir) :</strong></p>
+                        <ul>
+                            <li>FC24 4x4 – Championnat d'Angleterre</li>
+                            <li>FC24 3x3 – International Master League</li>
+                        </ul>
+                    </div>
+
+                    <div class="tooltip-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Vous disposez de <strong>5 prédictions gratuites</strong> par jour. Débloquez jusqu'à 25 prédictions quotidiennes avec l'abonnement VIP.</span>
+                    </div>
+                    
+                    <button class="fifa-button" onclick="goToStep(2)">Commencer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Étape 2: Choix du championnat -->
+        <div class="fifa-step" id="step-2">
+            <div class="fifa-card">
+                <h2>Choix du championnat</h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Sélectionnez le championnat pour lequel vous souhaitez une prédiction.</span>
+                </div>
+                <div class="championship-options">
+                    <div class="option-card" onclick="selectChampionship('fc24-england')">
+                        <div class="option-icon">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <h3>FC24 4x4</h3>
+                        <p>Championnat d'Angleterre</p>
+                    </div>
+                    
+                    <div class="option-card" onclick="selectChampionship('fc24-international')">
+                        <div class="option-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>FC24 3x3</h3>
+                        <p>International Master League</p>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="goToStep(3)" disabled>Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 3: Prédiction du vainqueur -->
+        <div class="fifa-step" id="step-3">
+            <div class="fifa-card">
+                <h2>Prédiction du vainqueur</h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Entrez les cotes telles qu'affichées sur votre site de paris. La plus basse indique le résultat le plus probable.</span>
+                </div>
+                <div class="prediction-form">
+                    <div class="form-group">
+                        <label for="home-odds">Cote de l'équipe à domicile</label>
+                        <input type="number" id="home-odds" min="1" step="0.01" placeholder="Ex: 1.85">
+                        <small class="form-help">Saisissez la cote décimale (ex: 1.85, 2.10...)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="away-odds">Cote de l'équipe à l'extérieur</label>
+                        <input type="number" id="away-odds" min="1" step="0.01" placeholder="Ex: 2.50">
+                        <small class="form-help">Cote pour la victoire de l'équipe jouant à l'extérieur</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="draw-odds">Cote du match nul</label>
+                        <input type="number" id="draw-odds" min="1" step="0.01" placeholder="Ex: 3.10">
+                        <small class="form-help">Cote pour un match nul entre les deux équipes</small>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="validateStep3AndGoToStep4()">Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 4: Scores exacts - Temps règlementaire -->
+        <div class="fifa-step" id="step-4">
+            <div class="fifa-card">
+                <h2>Scores exacts - Temps réglementaire</h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Entrez les deux scores exacts ayant les cotes les plus basses sur votre site de paris.</span>
+                </div>
+                <div class="prediction-form">
+                    <div class="form-group">
+                        <label for="exact-score-1">Score exact avec la plus petite cote (1er)</label>
+                        <div class="score-input">
+                            <input type="number" id="home-score-1" min="0" max="20" placeholder="Ex: 2" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-score-1" min="0" max="20" placeholder="Ex: 1" class="score-field">
+                        </div>
+                        <small class="form-help">Score le plus probable selon les cotes (domicile-extérieur)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exact-score-2">Score exact avec la plus petite cote (2e)</label>
+                        <div class="score-input">
+                            <input type="number" id="home-score-2" min="0" max="20" placeholder="Ex: 3" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-score-2" min="0" max="20" placeholder="Ex: 2" class="score-field">
+                        </div>
+                        <small class="form-help">Deuxième score le plus probable selon les cotes</small>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="validateStep4AndGoToStep5()">Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 5: Scores exacts - Mi-temps -->
+        <div class="fifa-step" id="step-5">
+            <div class="fifa-card">
+                <h2>Scores exacts - Mi-temps</h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Ces informations affinent considérablement la précision de nos prédictions.</span>
+                </div>
+                <div class="prediction-form">
+                    <div class="form-group">
+                        <label for="halftime-score-1">Score exact avec la plus petite cote à la 1re période</label>
+                        <div class="score-input">
+                            <input type="number" id="home-halftime-1" min="0" max="10" placeholder="Ex: 1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-halftime-1" min="0" max="10" placeholder="Ex: 0" class="score-field">
+                        </div>
+                        <small class="form-help">Score le plus probable à la mi-temps selon les cotes</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="halftime-score-2">Score exact avec la plus petite cote à la 2e période</label>
+                        <div class="score-input">
+                            <input type="number" id="home-halftime-2" min="0" max="10" placeholder="Ex: 1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-halftime-2" min="0" max="10" placeholder="Ex: 1" class="score-field">
+                        </div>
+                        <small class="form-help">Score de la 2e mi-temps uniquement (pas le score final)</small>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="goToStep(6)">Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 6: Génération des prédictions -->
+        <div class="fifa-step" id="step-6">
+            <div class="fifa-card">
+                <h2>Générer les prédictions</h2>
+                <div class="tooltip-info success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Toutes les données sont collectées. Notre IA est prête à générer des prédictions de haute précision.</span>
+                </div>
+                <div class="generation-content">
+                    <p>Toutes les données ont été collectées avec succès. Nous sommes prêts à générer vos prédictions FIFA.</p>
+                    
+                    <div class="generation-animation">
+                        <div class="loading-icon">
+                            <i class="fas fa-futbol fa-spin"></i>
+                        </div>
+                        <p id="loading-text">Prêt à générer...</p>
+                    </div>
+                    
+                    <button id="generate-button" class="fifa-button" onclick="generatePredictions()">Générer les prédictions</button>
+                    <small class="form-help centered">La génération prend environ 3 secondes pour maximiser la précision</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultats des prédictions -->
+        <div class="fifa-step" id="results">
+            <div class="fifa-card results-card">
+                <h2>Prédictions Expert FIFA</h2>
+                <div class="results-content">
+                    <div class="result-section">
+                        <h3>Résultat du match</h3>
+                        <div class="result-box" id="match-result">
+                            <div class="result-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="result-value">Chargement...</div>
+                            <div class="reliability">
+                                <span class="reliability-value" id="result-reliability">91%</span>
+                                <span class="reliability-label">Fiabilité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section double-result">
+                        <h3>Score exact</h3>
+                        <div class="result-box-container">
+                            <div class="result-box" id="primary-score">
+                                <div class="result-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="result-value">Chargement...</div>
+                                <div class="reliability">
+                                    <span class="reliability-value" id="primary-score-reliability">78%</span>
+                                    <span class="reliability-label">Fiabilité</span>
+                                </div>
+                            </div>
+                            
+                            <div class="result-box secondary" id="secondary-score">
+                                <div class="result-icon">
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="result-value">Chargement...</div>
+                                <div class="reliability">
+                                    <span class="reliability-value" id="secondary-score-reliability">68%</span>
+                                    <span class="reliability-label">Fiabilité</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Nombre de buts</h3>
+                        <div class="result-box highlight" id="goals-prediction">
+                            <div class="result-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="result-value">Chargement...</div>
+                            <div class="reliability">
+                                <span class="reliability-value" id="goals-reliability">99.2%</span>
+                                <span class="reliability-label">Fiabilité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="predictions-remaining">
+                        <i class="fas fa-chart-pie"></i>
+                        <span id="remaining-count">4</span> prédictions gratuites restantes aujourd'hui
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="fifa-button secondary-button" onclick="resetAndGoToStep(1)">
+                            <i class="fas fa-redo"></i> Nouvelle prédiction
+                        </button>
+                        <a href="index.html" class="fifa-button">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </div>
+                    
+                    <div class="premium-offer">
+                        <button class="fifa-button premium-button" onclick="showVipOffer()">
+                            <i class="fas fa-crown"></i> Obtenir 25 prédictions par jour
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pop-up limite atteinte -->
+        <div id="limit-popup" class="fifa-popup">
+            <div class="popup-content">
+                <span class="close-popup" onclick="closePopup('limit-popup')">&times;</span>
+                <div class="popup-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h3>Limite quotidienne atteinte</h3>
+                <p>Vous avez utilisé vos 5 prédictions gratuites d'aujourd'hui.</p>
+                <p>Revenez demain pour 5 nouvelles prédictions ou passez à la version premium dès maintenant.</p>
+                <button class="fifa-button premium-button" onclick="showVipOffer()">
+                    <i class="fas fa-crown"></i> Obtenir 25 prédictions par jour
+                </button>
+            </div>
+        </div>
+        
+        <!-- Pop-up offre VIP -->
+        <div id="vip-popup" class="fifa-popup">
+            <div class="popup-content">
+                <span class="close-popup" onclick="closePopup('vip-popup')">&times;</span>
+                <div class="popup-icon premium">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h3>Débloquez le mode Premium</h3>
+                <div class="premium-benefits">
+                    <ul>
+                        <li><i class="fas fa-check"></i> 25 prédictions quotidiennes (au lieu de 5)</li>
+                        <li><i class="fas fa-check"></i> Accès à tous les outils Premium</li>
+                        <li><i class="fas fa-check"></i> Stratégies & Failles exclusives</li>
+                        <li><i class="fas fa-check"></i> Mode God Mode pour prédictions avancées</li>
+                    </ul>
+                </div>
+                <p class="premium-price">Seulement <strong>20$</strong> - Accès illimité</p>
+                <button class="fifa-button premium-button" onclick="redirectToPayment()">
+                    <i class="fas fa-unlock"></i> Déverrouiller maintenant
+                </button>
+            </div>
+        </div>
+    </div>
     
-    .double-result .result-box-container {
-        flex-direction: column;
-    }
-    
-    .result-actions {
-        flex-direction: column;
-    }
-    
-    .result-actions .fifa-button {
-        width: 100%;
-    }
-}
+    <script src="expert-fifa.js"></script>
+</body>
+</html>
