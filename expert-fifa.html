@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expert FIFA - BetScale Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="expert-fifa.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="overlay"></div>
+    
+    <div class="container fifa-container">
+        <!-- Bouton Retour -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+
+        <!-- Étape 1: Introduction -->
+        <div class="fifa-step" id="step-1">
+            <div class="fifa-card">
+                <h2>Expert FIFA</h2>
+                <div class="fifa-intro">
+                    <p class="fifa-intro-text">Les prédictions sont basées sur un modèle de calcul avancé connecté à une base de données exclusive. Résultats rapides et fiables.</p>
+                    
+                    <div class="fifa-info-box">
+                        <p><strong>Expert FIFA fonctionne uniquement avec les deux jeux suivants (plus à venir) :</strong></p>
+                        <ul>
+                            <li>FC24 4x4 – Championnat d'Angleterre</li>
+                            <li>FC24 3x3 – International Master League</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="fifa-button" onclick="goToStep(2)">Commencer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Étape 2: Choix du championnat -->
+        <div class="fifa-step" id="step-2">
+            <div class="fifa-card">
+                <h2>Choix du championnat</h2>
+                <div class="championship-options">
+                    <div class="option-card" onclick="selectChampionship('fc24-england')">
+                        <div class="option-icon">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <h3>FC24 4x4</h3>
+                        <p>Championnat d'Angleterre</p>
+                    </div>
+                    
+                    <div class="option-card" onclick="selectChampionship('fc24-international')">
+                        <div class="option-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>FC24 3x3</h3>
+                        <p>International Master League</p>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="goToStep(3)" disabled>Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 3: Prédiction du vainqueur -->
+        <div class="fifa-step" id="step-3">
+            <div class="fifa-card">
+                <h2>Prédiction du vainqueur</h2>
+                <div class="prediction-form">
+                    <div class="form-group">
+                        <label for="home-odds">Cote de l'équipe à domicile</label>
+                        <input type="number" id="home-odds" min="1" step="0.01" placeholder="Ex: 1.85">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="away-odds">Cote de l'équipe à l'extérieur</label>
+                        <input type="number" id="away-odds" min="1" step="0.01" placeholder="Ex: 2.50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="draw-odds">Cote du match nul</label>
+                        <input type="number" id="draw-odds" min="1" step="0.01" placeholder="Ex: 3.10">
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="validateStep3AndGoToStep4()">Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 4: Scores exacts - Temps règlementaire -->
+        <div class="fifa-step" id="step-4">
+            <div class="fifa-card">
+                <h2>Scores exacts - Temps réglementaire</h2>
+                <div class="prediction-form">
+                    <div class="form-group">
+                        <label for="exact-score-1">Score exact avec la plus petite cote (1er)</label>
+                        <div class="score-input">
+                            <input type="number" id="home-score-1" min="0" max="20" placeholder="Ex: 2" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-score-1" min="0" max="20" placeholder="Ex: 1" class="score-field">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exact-score-2">Score exact avec la plus petite cote (2e)</label>
+                        <div class="score-input">
+                            <input type="number" id="home-score-2" min="0" max="20" placeholder="Ex: 3" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-score-2" min="0" max="20" placeholder="Ex: 2" class="score-field">
+                        </div>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="validateStep4AndGoToStep5()">Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 5: Scores exacts - Mi-temps -->
+        <div class="fifa-step" id="step-5">
+            <div class="fifa-card">
+                <h2>Scores exacts - Mi-temps</h2>
+                <div class="prediction-form">
+                    <div class="form-group">
+                        <label for="halftime-score-1">Score exact avec la plus petite cote à la 1re période</label>
+                        <div class="score-input">
+                            <input type="number" id="home-halftime-1" min="0" max="10" placeholder="Ex: 1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-halftime-1" min="0" max="10" placeholder="Ex: 0" class="score-field">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="halftime-score-2">Score exact avec la plus petite cote à la 2e période</label>
+                        <div class="score-input">
+                            <input type="number" id="home-halftime-2" min="0" max="10" placeholder="Ex: 1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-halftime-2" min="0" max="10" placeholder="Ex: 1" class="score-field">
+                        </div>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="goToStep(6)">Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 6: Génération des prédictions -->
+        <div class="fifa-step" id="step-6">
+            <div class="fifa-card">
+                <h2>Générer les prédictions</h2>
+                <div class="generation-content">
+                    <p>Toutes les données ont été collectées avec succès. Nous sommes prêts à générer vos prédictions FIFA.</p>
+                    
+                    <div class="generation-animation">
+                        <div class="loading-icon">
+                            <i class="fas fa-futbol fa-spin"></i>
+                        </div>
+                        <p id="loading-text">Prêt à générer...</p>
+                    </div>
+                    
+                    <button id="generate-button" class="fifa-button" onclick="generatePredictions()">Générer les prédictions</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultats des prédictions -->
+        <div class="fifa-step" id="results">
+            <div class="fifa-card results-card">
+                <h2>Prédictions Expert FIFA</h2>
+                <div class="results-content">
+                    <div class="result-section">
+                        <h3>Résultat du match</h3>
+                        <div class="result-box" id="match-result">
+                            <div class="result-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="result-value">Chargement...</div>
+                            <div class="reliability">
+                                <span class="reliability-value" id="result-reliability">91%</span>
+                                <span class="reliability-label">Fiabilité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section double-result">
+                        <h3>Score exact</h3>
+                        <div class="result-box-container">
+                            <div class="result-box" id="primary-score">
+                                <div class="result-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="result-value">Chargement...</div>
+                                <div class="reliability">
+                                    <span class="reliability-value" id="primary-score-reliability">78%</span>
+                                    <span class="reliability-label">Fiabilité</span>
+                                </div>
+                            </div>
+                            
+                            <div class="result-box secondary" id="secondary-score">
+                                <div class="result-icon">
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="result-value">Chargement...</div>
+                                <div class="reliability">
+                                    <span class="reliability-value" id="secondary-score-reliability">68%</span>
+                                    <span class="reliability-label">Fiabilité</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Nombre de buts</h3>
+                        <div class="result-box highlight" id="goals-prediction">
+                            <div class="result-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="result-value">Chargement...</div>
+                            <div class="reliability">
+                                <span class="reliability-value" id="goals-reliability">99.2%</span>
+                                <span class="reliability-label">Fiabilité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="fifa-button secondary-button" onclick="resetAndGoToStep(1)">
+                            <i class="fas fa-redo"></i> Nouvelle prédiction
+                        </button>
+                        <a href="index.html" class="fifa-button">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="expert-fifa.js"></script>
+</body>
+</html>
