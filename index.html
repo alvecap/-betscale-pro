@@ -20,7 +20,7 @@
         </header>
 
         <div class="grid-container">
-            <!-- Menu 1 -->
+            <!-- Menu 1 - Expert FIFA -->
             <div class="card">
                 <div class="card-icon">
                     <i class="fas fa-gamepad"></i>
@@ -29,10 +29,10 @@
                 <div class="card-badge free">Gratuit</div>
                 <h3>Expert FIFA</h3>
                 <p>Prédictions de scores FIFA virtuels en temps réel. IA rapide et gratuite.</p>
-                <button class="btn-card">Accéder</button>
+                <a href="expert-fifa.html" class="btn-card">Accéder</a>
             </div>
 
-            <!-- Menu 2 -->
+            <!-- Menu 2 - Outils Premium -->
             <div class="card">
                 <div class="card-icon">
                     <i class="fas fa-toolbox"></i>
@@ -40,10 +40,10 @@
                 <div class="card-badge vip">VIP</div>
                 <h3>Outils Premium</h3>
                 <p>Les IA les plus avancées et outils jamais dévoilés pour booster tes paris.</p>
-                <button class="btn-card lock">Activer 🔒</button>
+                <button class="btn-card lock" onclick="showVipOffer()">Activer 🔒</button>
             </div>
 
-            <!-- Menu 3 -->
+            <!-- Menu 3 - Stratégies & Failles -->
             <div class="card">
                 <div class="card-icon">
                     <i class="fas fa-key"></i>
@@ -52,10 +52,10 @@
                 <div class="card-badge vip">VIP</div>
                 <h3>Stratégies & Failles</h3>
                 <p>Accède aux meilleures stratégies mathématiques et failles secrètes.</p>
-                <button class="btn-card lock">Activer 🔒</button>
+                <button class="btn-card lock" onclick="showVipOffer()">Activer 🔒</button>
             </div>
 
-            <!-- Menu 4 -->
+            <!-- Menu 4 - God Mode -->
             <div class="card">
                 <div class="card-icon">
                     <i class="fas fa-crown"></i>
@@ -64,10 +64,10 @@
                 <div class="card-badge vip">VIP</div>
                 <h3>God Mode</h3>
                 <p>Prédictions ultra-précises : score exact, nombre de buts, et plus encore.</p>
-                <button class="btn-card lock">Activer 🔒</button>
+                <button class="btn-card lock" onclick="showVipOffer()">Activer 🔒</button>
             </div>
 
-            <!-- Menu 5 -->
+            <!-- Menu 5 - Nos Services -->
             <div class="card">
                 <div class="card-icon">
                     <i class="fas fa-concierge-bell"></i>
@@ -78,7 +78,7 @@
                 <button class="btn-card">Consulter</button>
             </div>
 
-            <!-- Menu 6 -->
+            <!-- Menu 6 - À propos -->
             <div class="card">
                 <div class="card-icon">
                     <i class="fas fa-info-circle"></i>
@@ -94,10 +94,10 @@
     <!-- Pop-up VIP -->
     <div id="vip-popup" class="popup">
         <div class="popup-content">
-            <span class="close-popup">&times;</span>
+            <span class="close-popup" onclick="closePopup('vip-popup')">&times;</span>
             <h2>Déverrouille les fonctions avancées !</h2>
             <p>Avec seulement 20 $, débloque Outils Premium, Stratégies & Failles, God Mode et un accès illimité à Expert FIFA. Offre unique et immédiate.</p>
-            <button id="payment-button" class="btn-payment">Déverrouiller tout – 20 $</button>
+            <button id="payment-button" class="btn-payment" onclick="redirectToPayment()">Déverrouiller tout – 20 $</button>
         </div>
     </div>
     
