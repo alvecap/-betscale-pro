@@ -6,17 +6,25 @@
 // Variables globales pour stocker les données
 let predictionData = {
     championship: null,
+    // Cotes
     homeOdds: null,
     awayOdds: null,
     drawOdds: null,
+    // Scores temps réglementaire
     homeScore1: null,
     awayScore1: null,
     homeScore2: null,
     awayScore2: null,
+    // Scores mi-temps
     homeHalftime1: null,
     awayHalftime1: null,
     homeHalftime2: null,
     awayHalftime2: null,
+    // Scores alignés
+    homeAlignedHome: null,
+    homeAlignedAway: null,
+    awayAlignedHome: null,
+    awayAlignedAway: null,
     // Résultats calculés
     matchResult: null,
     primaryScore: null,
@@ -26,7 +34,10 @@ let predictionData = {
     resultReliability: null,
     primaryScoreReliability: null,
     secondaryScoreReliability: null,
-    goalsReliability: null
+    goalsReliability: null,
+    // Facteurs d'analyse
+    favoriteTeam: null, // "home", "away", ou "draw"
+    favoriteScore: null
 };
 
 // Variables pour la gestion des prédictions quotidiennes
@@ -254,6 +265,11 @@ function initFormListeners() {
     document.querySelectorAll('#step-5 input').forEach(input => {
         input.addEventListener('input', validateStep5Inputs);
     });
+    
+    // Étape 6: Validation des scores alignés
+    document.querySelectorAll('#step-6 input').forEach(input => {
+        input.addEventListener('input', validateStep6Inputs);
+    });
 }
 
 // Navigation entre les étapes
@@ -340,10 +356,13 @@ function determineMatchResult() {
     // La cote la plus basse indique le résultat le plus probable
     if (homeOdds <= awayOdds && homeOdds <= drawOdds) {
         predictionData.matchResult = 'Victoire de l\'équipe à domicile';
+        predictionData.favoriteTeam = 'home';
     } else if (awayOdds <= homeOdds && awayOdds <= drawOdds) {
         predictionData.matchResult = 'Victoire de l\'équipe à l\'extérieur';
+        predictionData.favoriteTeam = 'away';
     } else {
         predictionData.matchResult = 'Match nul';
+        predictionData.favoriteTeam = 'draw';
     }
     
     // Générer la fiabilité (85-92%)
@@ -396,6 +415,23 @@ function validateStep5Inputs() {
     }
 }
 
+// Validation des champs de l'étape 6 (scores alignés)
+function validateStep6Inputs() {
+    const homeAlignedHome = document.getElementById('home-aligned-home').value;
+    const homeAlignedAway = document.getElementById('home-aligned-away').value;
+    const awayAlignedHome = document.getElementById('away-aligned-home').value;
+    const awayAlignedAway = document.getElementById('away-aligned-away').value;
+    
+    const nextButton = document.querySelector('#step-6 .fifa-button');
+    
+    if (homeAlignedHome !== '' && homeAlignedAway !== '' && 
+        awayAlignedHome !== '' && awayAlignedAway !== '') {
+        nextButton.removeAttribute('disabled');
+    } else {
+        nextButton.setAttribute('disabled', true);
+    }
+}
+
 // Génération des prédictions
 function generatePredictions() {
     // Vérifier si l'utilisateur peut faire une prédiction
@@ -408,6 +444,11 @@ function generatePredictions() {
     predictionData.awayHalftime1 = parseInt(document.getElementById('away-halftime-1').value);
     predictionData.homeHalftime2 = parseInt(document.getElementById('home-halftime-2').value);
     predictionData.awayHalftime2 = parseInt(document.getElementById('away-halftime-2').value);
+    
+    predictionData.homeAlignedHome = parseInt(document.getElementById('home-aligned-home').value);
+    predictionData.homeAlignedAway = parseInt(document.getElementById('home-aligned-away').value);
+    predictionData.awayAlignedHome = parseInt(document.getElementById('away-aligned-home').value);
+    predictionData.awayAlignedAway = parseInt(document.getElementById('away-aligned-away').value);
     
     // Désactiver le bouton de génération
     const generateButton = document.getElementById('generate-button');
@@ -423,6 +464,7 @@ function generatePredictions() {
     loadingBar.className = 'loading-bar';
     loadingAnimation.appendChild(loadingBar);
     
+    // Mettre à jour le texte de chargement
     // Mettre à jour le texte de chargement
     updateLoadingText('Analyse des données...', 0);
     
@@ -451,7 +493,7 @@ function updateLoadingText(text, progress) {
     document.getElementById('loading-text').textContent = text;
 }
 
-// Calcul des prédictions
+// Calcul des prédictions avec la nouvelle logique
 function calculatePredictions() {
     // 1. Calculer le score exact principal
     const totalHomeRegular = predictionData.homeScore1 + predictionData.homeScore2;
@@ -466,40 +508,78 @@ function calculatePredictions() {
     
     predictionData.primaryScore = `${primaryHomeScore}-${primaryAwayScore}`;
     
-    // 2. Générer un score exact secondaire (variante crédible)
-    // Légère variation aléatoire tout en gardant la même tendance générale
-    let secondaryHomeScore = primaryHomeScore;
-    let secondaryAwayScore = primaryAwayScore;
+    // 2. Déterminer le score favori en fonction de l'équipe favorite
+    let favoriteHomeScore, favoriteAwayScore;
     
-    // Ajuster un des scores de +/- 1 ou 2
-    const adjustHome = Math.random() > 0.5;
-    const adjustment = Math.random() > 0.7 ? 2 : 1;
-    
-    if (adjustHome) {
-        secondaryHomeScore += Math.random() > 0.5 ? adjustment : -adjustment;
-        // Éviter les scores négatifs
-        secondaryHomeScore = Math.max(0, secondaryHomeScore);
+    if (predictionData.favoriteTeam === 'home') {
+        favoriteHomeScore = predictionData.homeAlignedHome;
+        favoriteAwayScore = predictionData.homeAlignedAway;
+    } else if (predictionData.favoriteTeam === 'away') {
+        favoriteHomeScore = predictionData.awayAlignedHome;
+        favoriteAwayScore = predictionData.awayAlignedAway;
     } else {
-        secondaryAwayScore += Math.random() > 0.5 ? adjustment : -adjustment;
-        // Éviter les scores négatifs
-        secondaryAwayScore = Math.max(0, secondaryAwayScore);
+        // Match nul - utiliser le score du temps réglementaire le plus proche d'un nul
+        const diff1 = Math.abs(predictionData.homeScore1 - predictionData.awayScore1);
+        const diff2 = Math.abs(predictionData.homeScore2 - predictionData.awayScore2);
+        
+        if (diff1 <= diff2) {
+            favoriteHomeScore = predictionData.homeScore1;
+            favoriteAwayScore = predictionData.awayScore1;
+        } else {
+            favoriteHomeScore = predictionData.homeScore2;
+            favoriteAwayScore = predictionData.awayScore2;
+        }
+    }
+    
+    // 3. Calculer la similarité entre le score principal et le score favori
+    const isSimilar = calculateScoreSimilarity(
+        primaryHomeScore, primaryAwayScore,
+        favoriteHomeScore, favoriteAwayScore
+    );
+    
+    // 4. Déterminer le score exact secondaire basé sur la similarité
+    let secondaryHomeScore, secondaryAwayScore;
+    
+    if (isSimilar >= 70) {
+        // Si la similarité est élevée, utiliser le score favori
+        secondaryHomeScore = favoriteHomeScore;
+        secondaryAwayScore = favoriteAwayScore;
+    } else {
+        // Sinon, ajuster en fonction de la tendance
+        if (predictionData.favoriteTeam === 'home') {
+            // Réduire légèrement les buts mais garder la victoire à domicile
+            secondaryHomeScore = Math.max(1, favoriteHomeScore - 1);
+            secondaryAwayScore = Math.max(0, favoriteAwayScore - 1);
+            // S'assurer que l'équipe domicile reste gagnante
+            if (secondaryHomeScore <= secondaryAwayScore) {
+                secondaryHomeScore = secondaryAwayScore + 1;
+            }
+        } else if (predictionData.favoriteTeam === 'away') {
+            // Réduire légèrement les buts mais garder la victoire à l'extérieur
+            secondaryHomeScore = Math.max(0, favoriteHomeScore - 1);
+            secondaryAwayScore = Math.max(1, favoriteAwayScore - 1);
+            // S'assurer que l'équipe extérieure reste gagnante
+            if (secondaryHomeScore >= secondaryAwayScore) {
+                secondaryAwayScore = secondaryHomeScore + 1;
+            }
+        } else {
+            // Ajuster pour un match nul crédible
+            const baseScore = Math.floor((favoriteHomeScore + favoriteAwayScore) / 2);
+            secondaryHomeScore = baseScore;
+            secondaryAwayScore = baseScore;
+        }
     }
     
     predictionData.secondaryScore = `${secondaryHomeScore}-${secondaryAwayScore}`;
     
-    // 3. Prédiction du nombre de buts
+    // 5. Prédiction du nombre de buts avec la règle -1 but
     const totalGoals = primaryHomeScore + primaryAwayScore;
-    // Appliquer la règle: -1 but arrondi à la baisse
-    const adjustedGoals = totalGoals - 1;
+    const adjustedGoals = totalGoals - 1; // Appliquer la règle: -1 but
     
     // Formatage style paris sportifs
-    if (adjustedGoals > 0) {
-        predictionData.goalsPrediction = `+${adjustedGoals}.5 buts`;
-    } else {
-        predictionData.goalsPrediction = `${adjustedGoals}.5 buts`;
-    }
+    predictionData.goalsPrediction = `+${Math.max(0, adjustedGoals)}.5 buts`;
     
-    // 4. Calculer les fiabilités
+    // 6. Calculer les fiabilités
     predictionData.resultReliability = Math.floor(Math.random() * 8) + 85; // 85-92%
     predictionData.primaryScoreReliability = Math.floor(Math.random() * 16) + 65; // 65-80%
     predictionData.secondaryScoreReliability = Math.floor(Math.random() * 11) + 60; // 60-70%
@@ -509,10 +589,40 @@ function calculatePredictions() {
     predictionData.goalsReliability = 99 + (decimalPart / 10); // 99.0-99.9%
 }
 
+// Calcule la similarité entre deux scores (pourcentage 0-100)
+function calculateScoreSimilarity(home1, away1, home2, away2) {
+    // Critères de similarité
+    let similarityScore = 0;
+    
+    // 1. Même résultat (victoire domicile, nul, victoire extérieur)
+    const result1 = home1 > away1 ? 'home' : (home1 < away1 ? 'away' : 'draw');
+    const result2 = home2 > away2 ? 'home' : (home2 < away2 ? 'away' : 'draw');
+    
+    if (result1 === result2) {
+        similarityScore += 40; // 40% de similarité si même résultat
+    }
+    
+    // 2. Différence de buts similaire
+    const goalDiff1 = home1 - away1;
+    const goalDiff2 = home2 - away2;
+    if (Math.abs(goalDiff1 - goalDiff2) <= 1) {
+        similarityScore += 30; // 30% si écart de buts similaire (±1)
+    }
+    
+    // 3. Total de buts similaire
+    const totalGoals1 = home1 + away1;
+    const totalGoals2 = home2 + away2;
+    if (Math.abs(totalGoals1 - totalGoals2) <= 1) {
+        similarityScore += 30; // 30% si total de buts similaire (±1)
+    }
+    
+    return similarityScore;
+}
+
 // Affichage des résultats
 function showResults() {
     // Masquer l'étape de génération
-    document.getElementById('step-6').classList.remove('active');
+    document.getElementById('step-7').classList.remove('active');
     
     // Afficher les résultats
     const resultsSection = document.getElementById('results');
@@ -569,6 +679,10 @@ function resetAndGoToStep(stepNumber) {
         awayHalftime1: null,
         homeHalftime2: null,
         awayHalftime2: null,
+        homeAlignedHome: null,
+        homeAlignedAway: null,
+        awayAlignedHome: null,
+        awayAlignedAway: null,
         matchResult: null,
         primaryScore: null,
         secondaryScore: null,
@@ -576,7 +690,9 @@ function resetAndGoToStep(stepNumber) {
         resultReliability: null,
         primaryScoreReliability: null,
         secondaryScoreReliability: null,
-        goalsReliability: null
+        goalsReliability: null,
+        favoriteTeam: null,
+        favoriteScore: null
     };
     
     // Réinitialiser les formulaires
