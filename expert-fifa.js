@@ -465,7 +465,6 @@ function generatePredictions() {
     loadingAnimation.appendChild(loadingBar);
     
     // Mettre à jour le texte de chargement
-    // Mettre à jour le texte de chargement
     updateLoadingText('Analyse des données...', 0);
     
     // Calcul des prédictions
@@ -572,12 +571,13 @@ function calculatePredictions() {
     
     predictionData.secondaryScore = `${secondaryHomeScore}-${secondaryAwayScore}`;
     
-    // 5. Prédiction du nombre de buts avec la règle -1 but
+    // 5. Prédiction du nombre de buts avec la règle -1 but - CORRECTION ici
     const totalGoals = primaryHomeScore + primaryAwayScore;
     const adjustedGoals = totalGoals - 1; // Appliquer la règle: -1 but
     
-    // Formatage style paris sportifs
-    predictionData.goalsPrediction = `+${Math.max(0, adjustedGoals)}.5 buts`;
+    // Formatage style paris sportifs - CORRECTION importante
+    // Au lieu de +16.5 buts pour un total de 17 buts, nous voulons +15.5 buts
+    predictionData.goalsPrediction = `+${adjustedGoals - 1}.5 buts`;
     
     // 6. Calculer les fiabilités
     predictionData.resultReliability = Math.floor(Math.random() * 8) + 85; // 85-92%
