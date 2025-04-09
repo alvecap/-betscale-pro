@@ -47,7 +47,7 @@
 
                     <div class="tooltip-info">
                         <i class="fas fa-info-circle"></i>
-                        <span>Vous disposez de <strong>5 prédictions gratuites</strong> par jour. Débloquez jusqu'à 25 prédictions quotidiennes avec l'abonnement VIP.</span>
+                        <span class="info-text">Vous disposez de <strong>5 prédictions gratuites</strong> par jour. Débloquez jusqu'à 25 prédictions quotidiennes avec l'abonnement VIP.</span>
                     </div>
                     
                     <button class="fifa-button" onclick="goToStep(2)">Commencer</button>
@@ -61,9 +61,10 @@
                 <h2>Choix du championnat</h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span>Sélectionnez le championnat pour lequel vous souhaitez une prédiction.</span>
+                    <span class="info-text">Sélectionnez le championnat pour lequel vous souhaitez une prédiction.</span>
                 </div>
-                <div class="championship-options">
+                <div class="championship-container">
+                    <!-- Option 1 -->
                     <div class="option-card" onclick="selectChampionship('fc24-england')">
                         <div class="option-icon">
                             <i class="fas fa-futbol"></i>
@@ -72,6 +73,7 @@
                         <p>Championnat d'Angleterre</p>
                     </div>
                     
+                    <!-- Option 2 -->
                     <div class="option-card" onclick="selectChampionship('fc24-international')">
                         <div class="option-icon">
                             <i class="fas fa-globe"></i>
@@ -90,31 +92,31 @@
                 <h2>Prédiction du vainqueur</h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span>Entrez les cotes telles qu'affichées sur votre site de paris. La plus basse indique le résultat le plus probable.</span>
+                    <span class="info-text">Entrez les cotes telles qu'affichées sur votre site de paris. La plus basse indique le résultat le plus probable.</span>
                 </div>
                 <div class="prediction-form">
                     <div class="form-group">
                         <label for="home-odds">Cote de l'équipe à domicile</label>
                         <div class="input-wrapper">
                             <input type="number" id="home-odds" min="1" step="0.01" placeholder="Ex: 1.85">
-                            <small class="form-help">Saisissez la cote décimale (ex: 1.85, 2.10...)</small>
                         </div>
+                        <small class="form-help">Saisissez la cote décimale (ex: 1.85, 2.10...)</small>
                     </div>
                     
                     <div class="form-group">
                         <label for="away-odds">Cote de l'équipe à l'extérieur</label>
                         <div class="input-wrapper">
                             <input type="number" id="away-odds" min="1" step="0.01" placeholder="Ex: 2.50">
-                            <small class="form-help">Cote pour la victoire de l'équipe jouant à l'extérieur</small>
                         </div>
+                        <small class="form-help">Cote pour la victoire de l'équipe jouant à l'extérieur</small>
                     </div>
                     
                     <div class="form-group">
                         <label for="draw-odds">Cote du match nul</label>
                         <div class="input-wrapper">
                             <input type="number" id="draw-odds" min="1" step="0.01" placeholder="Ex: 3.10">
-                            <small class="form-help">Cote pour un match nul entre les deux équipes</small>
                         </div>
+                        <small class="form-help">Cote pour un match nul entre les deux équipes</small>
                     </div>
                 </div>
                 <button class="fifa-button fifa-next-button" onclick="validateStep3AndGoToStep4()">Suivant</button>
@@ -127,7 +129,7 @@
                 <h2>Scores exacts - Temps réglementaire</h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span>Entrez les deux scores exacts ayant les cotes les plus basses sur votre site de paris.</span>
+                    <span class="info-text">Entrez les deux scores exacts ayant les cotes les plus basses sur votre site de paris.</span>
                 </div>
                 <div class="prediction-form">
                     <div class="form-group">
@@ -160,7 +162,7 @@
                 <h2>Scores exacts - Mi-temps</h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span>Ces informations affinent considérablement la précision de nos prédictions.</span>
+                    <span class="info-text">Ces informations affinent considérablement la précision de nos prédictions.</span>
                 </div>
                 <div class="prediction-form">
                     <div class="form-group">
@@ -193,7 +195,7 @@
                 <h2>Scores exacts alignés</h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span>Pour une prédiction encore plus précise, entrez les scores exacts alignés sur chaque équipe.</span>
+                    <span class="info-text">Pour une prédiction encore plus précise, entrez les scores exacts alignés sur chaque équipe.</span>
                 </div>
                 <div class="prediction-form">
                     <div class="form-group">
@@ -226,7 +228,7 @@
                 <h2>Générer les prédictions</h2>
                 <div class="tooltip-info success">
                     <i class="fas fa-check-circle"></i>
-                    <span>Toutes les données sont collectées. Notre IA est prête à générer des prédictions de haute précision.</span>
+                    <span class="info-text">Toutes les données sont collectées. Notre IA est prête à générer des prédictions de haute précision.</span>
                 </div>
                 <div class="generation-content">
                     <p>Toutes les données ont été collectées avec succès. Nous sommes prêts à générer vos prédictions FIFA.</p>
