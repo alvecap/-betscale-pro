@@ -95,20 +95,26 @@
                 <div class="prediction-form">
                     <div class="form-group">
                         <label for="home-odds">Cote de l'équipe à domicile</label>
-                        <input type="number" id="home-odds" min="1" step="0.01" placeholder="Ex: 1.85">
-                        <small class="form-help">Saisissez la cote décimale (ex: 1.85, 2.10...)</small>
+                        <div class="input-wrapper">
+                            <input type="number" id="home-odds" min="1" step="0.01" placeholder="Ex: 1.85">
+                            <small class="form-help">Saisissez la cote décimale (ex: 1.85, 2.10...)</small>
+                        </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="away-odds">Cote de l'équipe à l'extérieur</label>
-                        <input type="number" id="away-odds" min="1" step="0.01" placeholder="Ex: 2.50">
-                        <small class="form-help">Cote pour la victoire de l'équipe jouant à l'extérieur</small>
+                        <div class="input-wrapper">
+                            <input type="number" id="away-odds" min="1" step="0.01" placeholder="Ex: 2.50">
+                            <small class="form-help">Cote pour la victoire de l'équipe jouant à l'extérieur</small>
+                        </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="draw-odds">Cote du match nul</label>
-                        <input type="number" id="draw-odds" min="1" step="0.01" placeholder="Ex: 3.10">
-                        <small class="form-help">Cote pour un match nul entre les deux équipes</small>
+                        <div class="input-wrapper">
+                            <input type="number" id="draw-odds" min="1" step="0.01" placeholder="Ex: 3.10">
+                            <small class="form-help">Cote pour un match nul entre les deux équipes</small>
+                        </div>
                     </div>
                 </div>
                 <button class="fifa-button fifa-next-button" onclick="validateStep3AndGoToStep4()">Suivant</button>
@@ -181,8 +187,41 @@
             </div>
         </div>
 
-        <!-- Étape 6: Génération des prédictions -->
+        <!-- Étape 6: Scores exacts alignés -->
         <div class="fifa-step" id="step-6">
+            <div class="fifa-card">
+                <h2>Scores exacts alignés</h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Pour une prédiction encore plus précise, entrez les scores exacts alignés sur chaque équipe.</span>
+                </div>
+                <div class="prediction-form">
+                    <div class="form-group">
+                        <label for="home-aligned-score">Score exact aligné sur l'équipe à domicile</label>
+                        <div class="score-input">
+                            <input type="number" id="home-aligned-home" min="0" max="10" placeholder="Ex: 2" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="home-aligned-away" min="0" max="10" placeholder="Ex: 0" class="score-field">
+                        </div>
+                        <small class="form-help">Score favori pour l'équipe jouant à domicile</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="away-aligned-score">Score exact aligné sur l'équipe à l'extérieur</label>
+                        <div class="score-input">
+                            <input type="number" id="away-aligned-home" min="0" max="10" placeholder="Ex: 1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-aligned-away" min="0" max="10" placeholder="Ex: 2" class="score-field">
+                        </div>
+                        <small class="form-help">Score favori pour l'équipe jouant à l'extérieur</small>
+                    </div>
+                </div>
+                <button class="fifa-button fifa-next-button" onclick="goToStep(7)">Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 7: Génération des prédictions -->
+        <div class="fifa-step" id="step-7">
             <div class="fifa-card">
                 <h2>Générer les prédictions</h2>
                 <div class="tooltip-info success">
