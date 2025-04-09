@@ -13,7 +13,6 @@
     --glow-color: rgba(59, 130, 246, 0.5);
     --vip-color: #ff6b6b;
     --free-color: #4ade80;
-    --popup-bg: rgba(20, 30, 50, 0.95);
 }
 
 * {
@@ -201,6 +200,8 @@ h1 {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: auto;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-card:hover {
@@ -223,7 +224,7 @@ h1 {
     transform: scale(0.95);
 }
 
-/* Pop-up VIP */
+/* Popup VIP */
 .popup {
     display: none;
     position: fixed;
@@ -238,13 +239,13 @@ h1 {
 }
 
 .popup-content {
-    background: var(--popup-bg);
+    background: var(--card-bg);
     margin: 15% auto;
     padding: 30px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     max-width: 500px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px var(--glow-color);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.3);
     text-align: center;
     animation: popup-appear 0.4s ease-out;
     position: relative;
