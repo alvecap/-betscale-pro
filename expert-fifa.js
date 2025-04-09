@@ -29,6 +29,11 @@ let predictionData = {
     goalsReliability: null
 };
 
+// Variables pour la gestion des prédictions quotidiennes
+let dailyPredictionsLimit = 5; // Limite par défaut pour les utilisateurs gratuits
+let predictionsRemaining = 5; // Nombre de prédictions restantes aujourd'hui
+let isUserVIP = false; // Statut VIP de l'utilisateur
+
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     // Initialisation de Telegram WebApp
@@ -36,6 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialisation des particules
     initParticles();
+    
+    // Charger le nombre de prédictions restantes
+    loadPredictionsCount();
     
     // Afficher la première étape
     goToStep(1);
@@ -58,6 +66,72 @@ function initTelegramWebApp() {
         // Configuration du thème
         document.documentElement.className = tgWebApp.colorScheme || 'dark';
     }
+}
+
+// Chargement du compteur de prédictions
+function loadPredictionsCount() {
+    // Essayer de charger depuis le stockage local
+    const storedCount = localStorage.getItem('predictionsRemaining');
+    const lastPredictionDate = localStorage.getItem('lastPredictionDate');
+    const today = new Date().toDateString();
+    
+    // Vérifier le statut VIP
+    isUserVIP = localStorage.getItem('userVIPStatus') === 'true';
+    
+    // Définir la limite en fonction du statut VIP
+    dailyPredictionsLimit = isUserVIP ? 25 : 5;
+    
+    // Si c'est un nouveau jour, réinitialiser le compteur
+    if (lastPredictionDate !== today) {
+        predictionsRemaining = dailyPredictionsLimit;
+        localStorage.setItem('predictionsRemaining', predictionsRemaining);
+        localStorage.setItem('lastPredictionDate', today);
+    } 
+    // Sinon charger la valeur stockée
+    else if (storedCount) {
+        predictionsRemaining = parseInt(storedCount);
+    }
+    
+    // Mettre à jour l'affichage
+    updatePredictionsCounter();
+}
+
+// Mise à jour de l'affichage du compteur
+function updatePredictionsCounter() {
+    const counterElement = document.getElementById('predictions-count');
+    if (counterElement) {
+        counterElement.textContent = predictionsRemaining;
+    }
+}
+
+// Décrémenter le compteur de prédictions
+function decrementPredictionsCount() {
+    if (predictionsRemaining > 0) {
+        predictionsRemaining--;
+        localStorage.setItem('predictionsRemaining', predictionsRemaining);
+        
+        // Mettre à jour l'affichage du compteur
+        updatePredictionsCounter();
+        
+        // Mettre à jour l'affichage dans les résultats
+        const remainingElement = document.getElementById('remaining-count');
+        if (remainingElement) {
+            remainingElement.textContent = predictionsRemaining;
+        }
+        
+        return true;
+    }
+    return false;
+}
+
+// Vérifier si l'utilisateur peut faire une prédiction
+function canMakePrediction() {
+    if (predictionsRemaining <= 0) {
+        // Afficher le popup de limite atteinte
+        document.getElementById('limit-popup').style.display = 'block';
+        return false;
+    }
+    return true;
 }
 
 // Initialisation des particules
@@ -211,6 +285,22 @@ function goToStep(stepNumber) {
     }
 }
 
+// Sélection du championnat
+function selectChampionship(championshipId) {
+    predictionData.championship = championshipId;
+    
+    // Mise à jour visuelle
+    document.querySelectorAll('.option-card').forEach(card => {
+        card.classList.remove('selected');
+        if (card.getAttribute('onclick').includes(championshipId)) {
+            card.classList.add('selected');
+        }
+    });
+    
+    // Activer le bouton Suivant
+    document.querySelector('#step-2 .fifa-button').removeAttribute('disabled');
+}
+
 // Validation des champs de l'étape 3
 function validateStep3Inputs() {
     const homeOdds = document.getElementById('home-odds').value;
@@ -308,6 +398,11 @@ function validateStep5Inputs() {
 
 // Génération des prédictions
 function generatePredictions() {
+    // Vérifier si l'utilisateur peut faire une prédiction
+    if (!canMakePrediction()) {
+        return;
+    }
+    
     // Collecter les dernières données
     predictionData.homeHalftime1 = parseInt(document.getElementById('home-halftime-1').value);
     predictionData.awayHalftime1 = parseInt(document.getElementById('away-halftime-1').value);
@@ -340,6 +435,9 @@ function generatePredictions() {
     setTimeout(() => {
         calculatePredictions();
         updateLoadingText('Prédictions prêtes!', 100);
+        
+        // Décrémenter le compteur de prédictions
+        decrementPredictionsCount();
         
         // Afficher les résultats après un court délai
         setTimeout(() => {
@@ -432,6 +530,9 @@ function showResults() {
     document.getElementById('secondary-score-reliability').textContent = `${predictionData.secondaryScoreReliability}%`;
     document.getElementById('goals-reliability').textContent = `${predictionData.goalsReliability.toFixed(1)}%`;
     
+    // Mettre à jour le compteur de prédictions restantes
+    document.getElementById('remaining-count').textContent = predictionsRemaining;
+    
     // Animation d'entrée des résultats
     const resultBoxes = document.querySelectorAll('.result-box');
     resultBoxes.forEach((box, index) => {
@@ -505,8 +606,65 @@ function resetAndGoToStep(stepNumber) {
     if (loadingBar) loadingBar.remove();
     document.getElementById('loading-text').textContent = 'Prêt à générer...';
     
+    // Vérifier si l'utilisateur peut encore faire des prédictions
+    if (predictionsRemaining <= 0) {
+        document.getElementById('limit-popup').style.display = 'block';
+        return;
+    }
+    
     // Aller à l'étape spécifiée
     goToStep(stepNumber);
+}
+
+// Fermer les popups
+function closePopup(popupId) {
+    document.getElementById(popupId).style.display = 'none';
+}
+
+// Afficher l'offre VIP
+function showVipOffer() {
+    document.getElementById('vip-popup').style.display = 'block';
+    
+    // Effet haptic sur mobile
+    const tgWebApp = window.Telegram?.WebApp;
+    if (tgWebApp?.HapticFeedback) {
+        tgWebApp.HapticFeedback.impactOccurred('medium');
+    }
+}
+
+// Redirection vers la page de paiement
+function redirectToPayment() {
+    // Pour l'instant, simuler un paiement réussi
+    alert('Redirection vers le système de paiement...');
+    
+    // Dans une implémentation réelle, vous redirigeriez vers NOWPayments
+    // window.location.href = "URL_DE_PAIEMENT";
+    
+    // Si intégration avec Telegram:
+    const tgWebApp = window.Telegram?.WebApp;
+    if (tgWebApp && tgWebApp.openLink) {
+        // tgWebApp.openLink("URL_DE_PAIEMENT");
+    }
+}
+
+// Activation du mode VIP (appelé après un paiement réussi)
+function activateVIP() {
+    isUserVIP = true;
+    dailyPredictionsLimit = 25;
+    predictionsRemaining = Math.max(predictionsRemaining, 25); // Mettre à jour sans diminuer si déjà supérieur
+    
+    // Sauvegarder dans le stockage local
+    localStorage.setItem('userVIPStatus', 'true');
+    localStorage.setItem('predictionsRemaining', predictionsRemaining);
+    
+    // Mettre à jour l'interface
+    updatePredictionsCounter();
+    
+    // Fermer le popup VIP
+    closePopup('vip-popup');
+    
+    // Afficher un message de succès
+    alert('Félicitations ! Vous avez maintenant accès à 25 prédictions quotidiennes et à toutes les fonctionnalités VIP de BetScale Pro.');
 }
 
 // Fonction utilitaire pour générer des nombres aléatoires dans une plage
