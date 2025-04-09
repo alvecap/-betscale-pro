@@ -8,6 +8,7 @@
     --fifa-accent: #ffc107;
     --fifa-card-bg: rgba(30, 41, 59, 0.85);
     --fifa-form-bg: rgba(15, 23, 42, 0.6);
+    --fifa-input-bg: rgba(15, 23, 42, 0.8);
     --fifa-success: #10b981;
     --fifa-error: #ef4444;
     --fifa-highlight: #f97316;
@@ -265,9 +266,8 @@
 /* Options de championnat */
 .championship-options {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
     justify-content: center;
+    gap: 20px;
     margin-bottom: 30px;
 }
 
@@ -325,15 +325,20 @@
     color: var(--text-color);
 }
 
+.input-wrapper {
+    position: relative;
+}
+
 .form-group input[type="number"] {
     width: 100%;
     padding: 12px 15px;
-    background: var(--fifa-form-bg);
+    background: var(--fifa-input-bg);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     color: var(--text-color);
     font-size: 1rem;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) inset;
 }
 
 .form-group input[type="number"]:focus {
@@ -352,6 +357,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    margin-bottom: 5px;
 }
 
 .score-field {
@@ -359,6 +365,7 @@
     text-align: center;
     font-weight: 600;
     font-size: 1.2rem !important;
+    padding: 10px 5px !important;
 }
 
 .score-separator {
@@ -772,5 +779,10 @@
         float: none;
         justify-content: center;
         margin-bottom: 20px;
+    }
+    
+    .championship-options {
+        flex-direction: column;
+        align-items: center;
     }
 }
