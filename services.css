@@ -201,6 +201,8 @@
 
 .preview-content {
     max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 @keyframes popup-appear {
@@ -245,13 +247,28 @@
 }
 
 .preview-section {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .preview-section h3 {
     font-size: 1.2rem;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: var(--services-accent);
+    line-height: 1.5;
+}
+
+.preview-section h4 {
+    font-size: 1.1rem;
+    margin: 15px 0 10px;
+    color: var(--text-color);
+}
+
+.preview-why {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    border-left: 3px solid var(--services-secondary);
 }
 
 .preview-examples {
@@ -264,6 +281,7 @@
     padding: 8px 0;
     position: relative;
     padding-left: 25px;
+    line-height: 1.4;
 }
 
 .preview-examples li::before {
@@ -272,6 +290,14 @@
     left: 0;
     color: var(--services-accent);
     font-weight: bold;
+}
+
+.preview-quote {
+    font-style: italic;
+    color: var(--services-accent);
+    border-left: 3px solid var(--services-accent);
+    padding-left: 15px;
+    margin: 15px 0;
 }
 
 /* Formulaire d'intérêt */
@@ -313,6 +339,42 @@
     outline: none;
 }
 
+/* Affichage du prix minimum et message d'erreur */
+.price-notice {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.price-notice i {
+    color: var(--services-accent);
+    margin-top: 3px;
+}
+
+#display-min-price {
+    font-weight: bold;
+    color: var(--services-accent);
+}
+
+.form-error {
+    color: var(--services-error);
+    font-size: 0.85rem;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-error i {
+    color: var(--services-error);
+}
+
 .btn-submit {
     background: linear-gradient(45deg, var(--services-tertiary), var(--services-primary));
     color: white;
@@ -331,6 +393,13 @@
 .btn-submit:hover {
     transform: translateY(-3px);
     box-shadow: 0 7px 25px rgba(59, 130, 246, 0.5);
+}
+
+.btn-submit:disabled {
+    background: linear-gradient(45deg, #64748b, #94a3b8);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Message de succès */
