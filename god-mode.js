@@ -715,6 +715,7 @@ function calculateGoalsPrediction() {
     const adjustedGoals = totalGoals - 1;
     
     // Formater la prédiction (format paris sportifs)
+    // CORRECTION: Utiliser directement adjustedGoals pour respecter la règle de -1 but
     godPredictionData.goalsPrediction = `+${adjustedGoals}.5 buts`;
 }
 
