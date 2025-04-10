@@ -4,7 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // Vérifier si l'utilisateur est administrateur
-    checkAdminAccess();
+    const isAdmin = checkAdminAccess();
 
     // Initialisation de l'intégration Telegram WebApp
     const tgWebApp = window.Telegram?.WebApp;
@@ -132,6 +132,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100 + (index * 100));
     });
     
+    // Mise à jour des boutons VIP pour l'administrateur
+    if (isAdmin) {
+        updateVipButtonsForAdmin();
+    }
+    
     // Effet de clic sur les boutons
     document.querySelectorAll('button').forEach(button => {
         button.addEventListener('click', function() {
@@ -183,6 +188,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Vérification administrateur
 function checkAdminAccess() {
+    // Vérifier d'abord si déjà défini dans localStorage
+    if (localStorage.getItem('userVIPStatus') === 'true' && localStorage.getItem('isAdmin') === 'true') {
+        console.log("Statut admin déjà activé");
+        return true;
+    }
+
     const tgWebApp = window.Telegram?.WebApp;
     if (tgWebApp && tgWebApp.initDataUnsafe?.user) {
         const username = tgWebApp.initDataUnsafe.user.username;
@@ -190,29 +201,54 @@ function checkAdminAccess() {
         if (username === "alve08") {
             // Attribuer le statut VIP automatiquement
             localStorage.setItem('userVIPStatus', 'true');
+            localStorage.setItem('isAdmin', 'true');
             // Donner un nombre élevé de prédictions
             localStorage.setItem('predictionsRemaining', '999');
             console.log("Accès administrateur accordé");
-            
-            // Mettre à jour l'interface si nécessaire
-            setTimeout(() => {
-                const vipButtons = document.querySelectorAll('.btn-card.lock');
-                vipButtons.forEach(button => {
-                    button.classList.remove('lock');
-                    button.textContent = 'Accéder';
-                    button.removeAttribute('onclick');
-                    // Convertir en lien pour les pages correspondantes
-                    if (button.parentElement.querySelector('h3').textContent.includes('God Mode')) {
-                        button.setAttribute('href', 'god-mode.html');
-                        button.setAttribute('role', 'link');
-                    }
-                });
-            }, 100);
-            
             return true;
         }
     }
+    
+    // Option de développement - décommenter pour tester localement
+    // localStorage.setItem('userVIPStatus', 'true');
+    // localStorage.setItem('isAdmin', 'true');
+    // localStorage.setItem('predictionsRemaining', '999');
+    // console.log("Mode développement: accès admin activé");
+    // return true;
+    
     return false;
+}
+
+// Mise à jour des boutons VIP pour l'admin
+function updateVipButtonsForAdmin() {
+    const vipButtons = document.querySelectorAll('.btn-card.lock');
+    vipButtons.forEach(button => {
+        button.classList.remove('lock');
+        button.removeAttribute('onclick');
+        button.textContent = 'Accéder';
+        
+        // Créer des liens href en fonction du type de carte
+        const cardTitle = button.parentElement.querySelector('h3').textContent.trim();
+        
+        if (cardTitle === 'God Mode') {
+            button.setAttribute('href', 'god-mode.html');
+        } else if (cardTitle === 'Outils Premium') {
+            button.setAttribute('href', '#premium-tools');  // À remplacer par le vrai lien
+        } else if (cardTitle === 'Stratégies & Failles') {
+            button.setAttribute('href', '#strategies');  // À remplacer par le vrai lien
+        }
+        
+        // Convertir le bouton en lien <a>
+        const newLink = document.createElement('a');
+        for (let i = 0; i < button.attributes.length; i++) {
+            const attr = button.attributes[i];
+            newLink.setAttribute(attr.name, attr.value);
+        }
+        newLink.textContent = button.textContent;
+        newLink.classList = button.classList;
+        
+        button.parentNode.replaceChild(newLink, button);
+    });
 }
 
 // Fonctions pour gestion du popup VIP
