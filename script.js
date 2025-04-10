@@ -3,6 +3,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier si l'utilisateur est administrateur
+    checkAdminAccess();
+
     // Initialisation de l'intégration Telegram WebApp
     const tgWebApp = window.Telegram?.WebApp;
     
@@ -177,6 +180,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     });
 });
+
+// Vérification administrateur
+function checkAdminAccess() {
+    const tgWebApp = window.Telegram?.WebApp;
+    if (tgWebApp && tgWebApp.initDataUnsafe?.user) {
+        const username = tgWebApp.initDataUnsafe.user.username;
+        // Vérifier si l'utilisateur est l'administrateur
+        if (username === "alve08") {
+            // Attribuer le statut VIP automatiquement
+            localStorage.setItem('userVIPStatus', 'true');
+            // Donner un nombre élevé de prédictions
+            localStorage.setItem('predictionsRemaining', '999');
+            console.log("Accès administrateur accordé");
+            
+            // Mettre à jour l'interface si nécessaire
+            setTimeout(() => {
+                const vipButtons = document.querySelectorAll('.btn-card.lock');
+                vipButtons.forEach(button => {
+                    button.classList.remove('lock');
+                    button.textContent = 'Accéder';
+                    button.removeAttribute('onclick');
+                    // Convertir en lien pour les pages correspondantes
+                    if (button.parentElement.querySelector('h3').textContent.includes('God Mode')) {
+                        button.setAttribute('href', 'god-mode.html');
+                        button.setAttribute('role', 'link');
+                    }
+                });
+            }, 100);
+            
+            return true;
+        }
+    }
+    return false;
+}
 
 // Fonctions pour gestion du popup VIP
 function showVipOffer() {
