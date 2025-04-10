@@ -9,22 +9,32 @@ const serviceDetails = {
         title: '🤖 Création de Chatbot IA connecté à Telegram',
         content: `
             <div class="preview-section">
-                <h3>✨ Exemples déjà créés :</h3>
+                <h3>🎯 « Un bon canal Telegram t'attire du monde. Un bot IA qui l'alimente tous les jours t'enrichit en silence. »</h3>
+                <div class="preview-why">
+                    <h4>💡 Pourquoi c'est puissant :</h4>
+                    <ul class="preview-examples">
+                        <li>Tu automatises l'envoi de prédictions, de messages ou de contenu premium</li>
+                        <li>Ton canal devient <strong>vivant, régulier, et autonome</strong></li>
+                        <li>Tu n'as plus besoin d'intervenir : <strong>le bot bosse pour toi</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="preview-section">
+                <h4>🧠 Ce que tu obtiens :</h4>
                 <ul class="preview-examples">
-                    <li><strong>AL VE AI Bot</strong> sur le canal [AL VE CAPITAL]</li>
-                    <li>Bot automatisé avec IA qui publie chaque jour des prédictions sur mesure</li>
-                    <li>Design professionnel + interface de gestion des alertes</li>
-                    <li>Compatible avec système de monétisation</li>
+                    <li>Un bot connecté directement à ton canal</li>
+                    <li>Envoi <strong>automatique de prédictions personnalisées</strong></li>
+                    <li>Fonctionne avec <strong>ChatGPT, Claude ou IA mixte</strong></li>
+                    <li>Peut envoyer : des scores exacts, des conseils, des alertes, etc.</li>
+                    <li>Possibilité d'ajouter des fonctions VIP (via abonnement)</li>
                 </ul>
             </div>
             <div class="preview-section">
-                <h3>💡 Fonctionnalités principales :</h3>
+                <h4>🧪 Exemple concret :</h4>
                 <ul class="preview-examples">
-                    <li>Integration complète avec ton canal Telegram existant</li>
-                    <li>Envoi automatique de prédictions selon un calendrier</li>
-                    <li>Modèles IA avancés pour des prédictions personnalisées</li>
-                    <li>Interface d'administration pour gérer les paramètres</li>
-                    <li>Support pour le déploiement et les mises à jour</li>
+                    <li>🔗 Bot : <strong>AL VE AI BOT</strong></li>
+                    <li>💥 Connecté au canal <strong>AL VE CAPITAL Officiel</strong> → +65 000 abonnés</li>
+                    <li>🎯 Il envoie tous les jours des prédictions intelligentes <strong>sans aucune action manuelle</strong></li>
                 </ul>
             </div>
         `,
@@ -34,21 +44,32 @@ const serviceDetails = {
         title: '🤖 Création de Bot IA simple',
         content: `
             <div class="preview-section">
-                <h3>⚙️ Caractéristiques :</h3>
+                <h3>🚀 « Pas besoin d'un studio pour démarrer un business. Un simple bot bien configuré peut devenir ton premier employé. »</h3>
+                <div class="preview-why">
+                    <h4>💡 Pourquoi c'est lunaire :</h4>
+                    <ul class="preview-examples">
+                        <li>Tu as ton propre assistant IA sur Telegram</li>
+                        <li>Tu peux le programmer pour :</li>
+                        <li>Répondre à tes questions</li>
+                        <li>Générer des prédictions à la demande</li>
+                        <li>Réagir à des mots-clés précis</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="preview-section">
+                <h4>🧠 Ce que tu obtiens :</h4>
                 <ul class="preview-examples">
-                    <li>Fonctionne comme un assistant personnel</li>
-                    <li>Peut être utilisé sur Telegram ou sur ton site</li>
-                    <li>Configuration rapide et personnalisable selon ton style</li>
-                    <li>Réponses automatiques basées sur l'IA</li>
+                    <li>Un bot autonome, 100% personnalisable</li>
+                    <li>Facile à déployer et simple à utiliser</li>
+                    <li>Parfait pour tester des projets ou lancer une micro-communauté</li>
                 </ul>
             </div>
             <div class="preview-section">
-                <h3>💡 Cas d'utilisation :</h3>
+                <h4>🧪 Exemple d'utilisation :</h4>
                 <ul class="preview-examples">
-                    <li>Assistant pour répondre aux questions de base des utilisateurs</li>
-                    <li>Générateur de prédictions simples sur demande</li>
-                    <li>Automatisation de tâches répétitives</li>
-                    <li>Point d'entrée pour tes services premium</li>
+                    <li>Tu tapes "🔥 VIP du jour" → Il t'envoie une prédiction</li>
+                    <li>Tu tapes "Mes stratégies" → Il te répond avec des conseils</li>
+                    <li>Tu ajoutes un bouton « Start » pour l'activer à tout moment</li>
                 </ul>
             </div>
         `,
@@ -58,21 +79,30 @@ const serviceDetails = {
         title: '📺 Création de chaîne YouTube professionnelle',
         content: `
             <div class="preview-section">
-                <h3>📈 Exemples :</h3>
+                <h3>🎬 « Une chaîne YouTube bien pensée n'a pas besoin de chance pour réussir. Elle attire, fidélise, et monétise naturellement. »</h3>
+                <div class="preview-why">
+                    <h4>💡 Pourquoi tu dois le faire :</h4>
+                    <ul class="preview-examples">
+                        <li>Tu gagnes en <strong>visibilité</strong>, <strong>crédibilité</strong>, et <strong>revenus passifs</strong></li>
+                        <li>Une chaîne bien structurée = monétisation + abonnés + audience fidèle</li>
+                        <li>Tu gagnes du temps car <strong>tout est optimisé dès le départ</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="preview-section">
+                <h4>🧠 Ce que tu obtiens :</h4>
                 <ul class="preview-examples">
-                    <li>Chaîne principale <strong>AL VE CAPITAL</strong></li>
-                    <li>Chaîne secondaire <strong>Alex Verol</strong>, monétisée en moins de 1 mois</li>
+                    <li>Création de A à Z : titre, logo, bannière, à propos, playlists, tags</li>
+                    <li>Accompagnement pour choisir ton angle rentable</li>
+                    <li>Mise en place d'un branding cohérent + conseils SEO</li>
+                    <li>Option vidéo pilote (si besoin)</li>
                 </ul>
             </div>
             <div class="preview-section">
-                <h3>🎯 Services inclus :</h3>
+                <h4>🧪 Exemples concrets :</h4>
                 <ul class="preview-examples">
-                    <li>Branding complet (logo, bannière, miniatures type)</li>
-                    <li>Optimisation SEO (titres, descriptions, mots-clés)</li>
-                    <li>Structure des sections et playlists</li>
-                    <li>Design des sections communauté et à propos</li>
-                    <li>Conseils sur la stratégie de contenu</li>
-                    <li>Optimisation pour la monétisation rapide</li>
+                    <li>📺 <strong>Chaîne principale</strong> : <strong>AL VE CAPITAL</strong> → +65 000 abonnés</li>
+                    <li>📈 <strong>Chaîne secondaire</strong> : <strong>Alex Verol</strong> → Monétisée en <strong>moins d'1 mois</strong></li>
                 </ul>
             </div>
         `,
@@ -82,24 +112,31 @@ const serviceDetails = {
         title: '🌐 Création de WebApp Telegram',
         content: `
             <div class="preview-section">
-                <h3>💡 Exemple :</h3>
+                <h3>🌌 « Si une chaîne YouTube attire l'attention, une WebApp IA transforme tes idées en empire. »</h3>
+                <div class="preview-why">
+                    <h4>💡 Pourquoi c'est une machine à cash :</h4>
+                    <ul class="preview-examples">
+                        <li>Tu proposes un espace interactif, stylé et utile</li>
+                        <li>Tu peux y intégrer : IA, prédictions, accès VIP, outils premium, etc.</li>
+                        <li>C'est <strong>100% contrôlé par toi</strong> : plus de dépendance aux plateformes</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="preview-section">
+                <h4>🧠 Ce que tu obtiens :</h4>
                 <ul class="preview-examples">
-                    <li><strong>BetScale Pro</strong>, interface en temps réel avec menus dynamiques</li>
-                    <li>Compatible avec IA Claude, Render, GitHub</li>
-                    <li>Menus VIP + intégration crypto avec NOWPayments</li>
-                    <li>Interface dark & animée, responsive sur tous supports</li>
+                    <li>WebApp responsive, fluide, sombre et animée</li>
+                    <li>Menus cliquables etc comme cette WebApp</li>
+                    <li>Intégration IA + paiement crypto pour encaisser tes gains</li>
+                    <li>Hébergement sur GitHub / Render</li>
                 </ul>
             </div>
             <div class="preview-section">
-                <h3>⚙️ Fonctionnalités disponibles :</h3>
+                <h4>🧪 Exemple de réussite :</h4>
                 <ul class="preview-examples">
-                    <li>Interface utilisateur personnalisée selon tes besoins</li>
-                    <li>Système de menus dynamiques et animations fluides</li>
-                    <li>Authentification et gestion des utilisateurs</li>
-                    <li>Intégration avec les API Telegram</li>
-                    <li>Options de monétisation (système de paiement)</li>
-                    <li>Intégration IA pour fonctionnalités avancées</li>
-                    <li>Hébergement et maintenance</li>
+                    <li>💻 <strong>BetScale Pro</strong> – l'une des seules WebApp IA de paris sportifs en mode Hamster Combat</li>
+                    <li>✨ Interface clean, intuitive, avec design futuriste</li>
+                    <li>💼 Intègre tes stratégies VIP + tes outils exclusifs</li>
                 </ul>
             </div>
         `,
@@ -149,9 +186,20 @@ document.addEventListener('DOMContentLoaded', function() {
         showInterestPopup(serviceId, price);
     });
     
+    // Gestionnaire d'événement pour le champ budget qui vérifie le prix minimum
+    document.getElementById('budget').addEventListener('input', function() {
+        validateBudget();
+    });
+    
     // Gestionnaire d'événement pour le formulaire d'intérêt
     document.getElementById('interest-form').addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // Vérifier le budget minimum avant soumission
+        if (!validateBudget()) {
+            return false;
+        }
+        
         submitInterestForm();
     });
     
@@ -225,7 +273,7 @@ function initParticles() {
             },
             "move": {
                 "enable": true,
-                "speed":"speed": 1,
+                "speed": 1,
                 "direction": "none",
                 "random": false,
                 "straight": false,
@@ -322,11 +370,17 @@ function showInterestPopup(serviceId, price) {
     if (serviceDetails[serviceId]) {
         // Mettre à jour le formulaire
         document.getElementById('service-name').value = serviceId;
+        document.getElementById('min-price').value = price;
         document.getElementById('budget').value = price;
+        document.getElementById('display-min-price').textContent = price;
+        
+        // Masquer le message d'erreur de prix
+        document.getElementById('price-error').style.display = 'none';
         
         // Réinitialiser le formulaire et masquer le message de succès
         document.getElementById('interest-form').reset();
         document.getElementById('service-name').value = serviceId;
+        document.getElementById('min-price').value = price;
         document.getElementById('budget').value = price;
         document.getElementById('form-success').style.display = 'none';
         document.getElementById('interest-form').style.display = 'block';
@@ -339,6 +393,27 @@ function showInterestPopup(serviceId, price) {
         if (tgWebApp?.HapticFeedback) {
             tgWebApp.HapticFeedback.impactOccurred('medium');
         }
+    }
+}
+
+// Valider que le budget est supérieur ou égal au prix minimum
+function validateBudget() {
+    const budgetField = document.getElementById('budget');
+    const minPrice = parseInt(document.getElementById('min-price').value);
+    const budget = parseInt(budgetField.value);
+    const errorDisplay = document.getElementById('price-error');
+    const submitButton = document.querySelector('.btn-submit');
+    
+    if (budget < minPrice) {
+        errorDisplay.style.display = 'flex';
+        submitButton.disabled = true;
+        budgetField.style.borderColor = 'var(--services-error)';
+        return false;
+    } else {
+        errorDisplay.style.display = 'none';
+        submitButton.disabled = false;
+        budgetField.style.borderColor = '';
+        return true;
     }
 }
 
