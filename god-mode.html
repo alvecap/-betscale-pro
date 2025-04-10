@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>God Mode - BetScale Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="god-mode.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="overlay"></div>
+    
+    <div class="container god-container">
+        <!-- Bouton Retour -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+
+        <!-- Compteur de prédictions -->
+        <div class="predictions-counter">
+            <div class="counter-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="counter-info">
+                <span id="predictions-count">5</span> prédictions restantes aujourd'hui
+            </div>
+        </div>
+
+        <!-- Introduction -->
+        <div class="god-step" id="intro-step">
+            <div class="god-card">
+                <h2>God Mode <span class="vip-badge">VIP</span></h2>
+                <div class="god-intro">
+                    <p class="god-intro-text">Notre système de prédiction le plus avancé utilisant un modèle de calcul basé sur 12 paramètres clés pour une précision maximale.</p>
+                    
+                    <div class="god-info-box">
+                        <p><strong>Le God Mode vous fournit :</strong></p>
+                        <ul>
+                            <li>Prédiction du gagnant (victoire directe ou double chance)</li>
+                            <li>Deux scores exacts à fort potentiel</li>
+                            <li>Nombre total de buts avec fiabilité maximale</li>
+                        </ul>
+                    </div>
+
+                    <div class="tooltip-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="info-text">Répondez aux 12 questions suivantes pour obtenir des prédictions ultra-précises sur n'importe quel match.</span>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" id="main-progress">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="progress-sections">
+                            <div class="progress-section active">1</div>
+                            <div class="progress-section">2</div>
+                            <div class="progress-section">3</div>
+                            <div class="progress-section">4</div>
+                        </div>
+                    </div>
+                    
+                    <button class="god-button" onclick="startGodMode()">Commencer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Cotes de base -->
+        <div class="god-step" id="section-1">
+            <div class="god-card">
+                <h2>Cotes principales <span class="section-number">1/4</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ces trois premières cotes permettent d'établir le favori du match et d'estimer l'équilibre des forces.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="home-odds">1. Quelle est la cote de l'équipe à domicile ?</label>
+                        <input type="number" id="home-odds" min="1" step="0.01" placeholder="Ex: 1.85" class="god-input">
+                        <small class="input-help">Saisissez la cote de victoire de l'équipe qui joue à domicile</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="draw-odds">2. Quelle est la cote du match nul ?</label>
+                        <input type="number" id="draw-odds" min="1" step="0.01" placeholder="Ex: 3.40" class="god-input">
+                        <small class="input-help">Cote pour un match nul entre les deux équipes</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="away-odds">3. Quelle est la cote de l'équipe à l'extérieur ?</label>
+                        <input type="number" id="away-odds" min="1" step="0.01" placeholder="Ex: 4.20" class="god-input">
+                        <small class="input-help">Saisissez la cote de victoire de l'équipe qui joue à l'extérieur</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button" onclick="goToSection(2)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Scores mi-temps -->
+        <div class="god-step" id="section-2">
+            <div class="god-card">
+                <h2>Scores par mi-temps <span class="section-number">2/4</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ces scores par période révèlent les tendances offensives et défensives des équipes au fil du match.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="halftime-score">4. Score exact avec la plus petite cote en 1ʳᵉ mi-temps ?</label>
+                        <div class="score-input">
+                            <input type="number" id="home-halftime" min="0" max="10" placeholder="0" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-halftime" min="0" max="10" placeholder="0" class="score-field">
+                        </div>
+                        <small class="input-help">Score de la première mi-temps le plus probable selon les cotes</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="secondhalf-score">5. Score exact avec la plus petite cote en 2ᵉ mi-temps ?</label>
+                        <div class="score-input">
+                            <input type="number" id="home-secondhalf" min="0" max="10" placeholder="1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-secondhalf" min="0" max="10" placeholder="0" class="score-field">
+                        </div>
+                        <small class="input-help">Score de la deuxième mi-temps le plus probable selon les cotes</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(1)">Retour</button>
+                    <button class="god-button" onclick="goToSection(3)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Scores alignés -->
+        <div class="god-step" id="section-3">
+            <div class="god-card">
+                <h2>Scores exacts alignés <span class="section-number">3/4</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Les scores alignés par résultat (domicile/nul/extérieur) sont essentiels pour affiner les prédictions.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="home-aligned">6. Score exact le plus probable aligné à gauche (domicile) ?</label>
+                        <div class="score-input">
+                            <input type="number" id="home-aligned-home" min="0" max="10" placeholder="2" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="home-aligned-away" min="0" max="10" placeholder="0" class="score-field">
+                        </div>
+                        <small class="input-help">Score favori pour une victoire de l'équipe à domicile</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="draw-aligned">7. Score exact le plus probable aligné au centre (nul) ?</label>
+                        <div class="score-input">
+                            <input type="number" id="draw-aligned-home" min="0" max="10" placeholder="1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="draw-aligned-away" min="0" max="10" placeholder="1" class="score-field">
+                        </div>
+                        <small class="input-help">Score favori pour un match nul</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="away-aligned">8. Score exact le plus probable aligné à droite (extérieur) ?</label>
+                        <div class="score-input">
+                            <input type="number" id="away-aligned-home" min="0" max="10" placeholder="0" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-aligned-away" min="0" max="10" placeholder="1" class="score-field">
+                        </div>
+                        <small class="input-help">Score favori pour une victoire de l'équipe à l'extérieur</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="top-exact-score">9. Score exact avec la plus petite cote sur l'ensemble du temps réglementaire ?</label>
+                        <div class="score-input">
+                            <input type="number" id="top-exact-home" min="0" max="10" placeholder="2" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="top-exact-away" min="0" max="10" placeholder="1" class="score-field">
+                        </div>
+                        <small class="input-help">Score exact global le plus probable selon les cotes</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(2)">Retour</button>
+                    <button class="god-button" onclick="goToSection(4)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Cotes spéciales -->
+        <div class="god-step" id="section-4">
+            <div class="god-card">
+                <h2>Cotes spéciales <span class="section-number">4/4</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ces paramètres supplémentaires permettent d'améliorer significativement la précision des prédictions.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="btts-odds">10. Cote BTTS – OUI (les deux équipes marquent) ?</label>
+                        <input type="number" id="btts-odds" min="1" step="0.01" placeholder="Ex: 1.65" class="god-input">
+                        <small class="input-help">Plus la cote est basse, plus il est probable que les deux équipes marquent</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="over-odds">11. Cote de +2,5 buts ?</label>
+                        <input type="number" id="over-odds" min="1" step="0.01" placeholder="Ex: 1.90" class="god-input">
+                        <small class="input-help">Cote pour qu'il y ait plus de 2,5 buts dans le match</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="handicap-odds">12. Cote du handicap -1 sur le favori ?</label>
+                        <input type="number" id="handicap-odds" min="1" step="0.01" placeholder="Ex: 2.10" class="god-input">
+                        <small class="input-help">Cote pour que l'équipe favorite gagne avec au moins 2 buts d'écart</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(3)">Retour</button>
+                    <button class="god-button generate-button" onclick="generateGodPredictions()">
+                        <i class="fas fa-bolt"></i> Générer les prédictions
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Génération de prédictions -->
+        <div class="god-step" id="generating-step">
+            <div class="god-card">
+                <h2>Calcul des prédictions</h2>
+                <div class="generating-content">
+                    <div class="generating-animation">
+                        <div class="generating-icon">
+                            <i class="fas fa-crown fa-spin"></i>
+                        </div>
+                        <div class="energy-rays">
+                            <div class="ray ray1"></div>
+                            <div class="ray ray2"></div>
+                            <div class="ray ray3"></div>
+                            <div class="ray ray4"></div>
+                        </div>
+                        <p id="generating-text">Traitement des données...</p>
+                        <div class="generating-progress">
+                            <div class="generating-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultats des prédictions -->
+        <div class="god-step" id="results-step">
+            <div class="god-card results-card">
+                <h2>Prédictions God Mode</h2>
+                <div class="results-content">
+                    <div class="result-section">
+                        <h3>Résultat du match</h3>
+                        <div class="result-box" id="match-result">
+                            <div class="result-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="result-value">Victoire de l'équipe à domicile</div>
+                            <div class="reliability">
+                                <span class="reliability-value" id="result-reliability">97%</span>
+                                <span class="reliability-label">Fiabilité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section double-result">
+                        <h3>Score exact</h3>
+                        <div class="result-box-container">
+                            <div class="result-box" id="primary-score">
+                                <div class="result-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="result-value">2-1</div>
+                                <div class="reliability">
+                                    <span class="reliability-value" id="primary-score-reliability">86%</span>
+                                    <span class="reliability-label">Fiabilité</span>
+                                </div>
+                            </div>
+                            
+                            <div class="result-box secondary" id="secondary-score">
+                                <div class="result-icon">
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="result-value">2-0</div>
+                                <div class="reliability">
+                                    <span class="reliability-value" id="secondary-score-reliability">72%</span>
+                                    <span class="reliability-label">Fiabilité</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Nombre de buts</h3>
+                        <div class="result-box highlight" id="goals-prediction">
+                            <div class="result-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="result-value">+1.5 buts</div>
+                            <div class="reliability">
+                                <span class="reliability-value" id="goals-reliability">99.8%</span>
+                                <span class="reliability-label">Fiabilité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="predictions-remaining">
+                        <i class="fas fa-chart-pie"></i>
+                        <span id="remaining-count">4</span> prédictions restantes aujourd'hui
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="god-button secondary-button" onclick="resetAndStart()">
+                            <i class="fas fa-redo"></i> Nouvelle prédiction
+                        </button>
+                        <a href="index.html" class="god-button">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pop-up limite atteinte -->
+        <div id="limit-popup" class="god-popup">
+            <div class="popup-content">
+                <span class="close-popup" onclick="closePopup('limit-popup')">&times;</span>
+                <div class="popup-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h3>Limite quotidienne atteinte</h3>
+                <p>Vous avez utilisé vos 5 prédictions gratuites d'aujourd'hui.</p>
+                <p>Revenez demain pour 5 nouvelles prédictions ou passez à la version premium dès maintenant.</p>
+                <button class="god-button premium-button" onclick="showVipOffer()">
+                    <i class="fas fa-crown"></i> Obtenir 25 prédictions par jour
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="god-mode.js"></script>
+</body>
+</html>
