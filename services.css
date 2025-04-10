@@ -1,0 +1,386 @@
+/* Services Page - BetScale Pro */
+
+/* Variables spécifiques */
+:root {
+    --services-primary: #3b82f6;
+    --services-secondary: #60a5fa;
+    --services-tertiary: #1d4ed8;
+    --services-accent: #ffc107;
+    --services-card-bg: rgba(30, 41, 59, 0.85);
+    --services-form-bg: rgba(15, 23, 42, 0.6);
+    --services-input-bg: rgba(15, 23, 42, 0.8);
+    --services-success: #10b981;
+    --services-error: #ef4444;
+    --services-highlight: #f97316;
+}
+
+/* Styles généraux de la section Services */
+.services-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.services-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.services-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.services-header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Grille des services */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/* Carte de service */
+.service-card {
+    background: var(--services-card-bg);
+    border-radius: 16px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.service-icon {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: var(--services-accent);
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.service-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.service-description {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.service-price {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.price-tag {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--services-accent);
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+
+.service-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.btn-preview, .btn-interest {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    border: none;
+}
+
+.btn-preview {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: white;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.btn-preview:hover {
+    background-color: rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
+}
+
+.btn-interest {
+    background: linear-gradient(45deg, var(--services-tertiary), var(--services-primary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-interest:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 25px rgba(59, 130, 246, 0.5);
+}
+
+.btn-interest-popup {
+    background: linear-gradient(45deg, var(--services-tertiary), var(--services-primary));
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    margin-top: 20px;
+    display: block;
+    width: 100%;
+}
+
+.btn-interest-popup:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 25px rgba(59, 130, 246, 0.5);
+}
+
+/* Popup Styles */
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.popup-content {
+    background: var(--services-card-bg);
+    margin: 10% auto;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    max-width: 600px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.3);
+    animation: popup-appear 0.4s ease-out;
+    position: relative;
+}
+
+.preview-content {
+    max-width: 700px;
+}
+
+@keyframes popup-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.close-popup {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: var(--text-secondary);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-popup:hover {
+    color: white;
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: white;
+    text-align: center;
+}
+
+/* Détails du service dans le popup d'aperçu */
+#preview-details {
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.preview-section {
+    margin-bottom: 20px;
+}
+
+.preview-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: var(--services-accent);
+}
+
+.preview-examples {
+    list-style-type: none;
+    padding: 0;
+    margin-left: 10px;
+}
+
+.preview-examples li {
+    padding: 8px 0;
+    position: relative;
+    padding-left: 25px;
+}
+
+.preview-examples li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--services-accent);
+    font-weight: bold;
+}
+
+/* Formulaire d'intérêt */
+.form-intro {
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--services-input-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) inset;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--services-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2), 0 4px 10px rgba(0, 0, 0, 0.1) inset;
+    outline: none;
+}
+
+.btn-submit {
+    background: linear-gradient(45deg, var(--services-tertiary), var(--services-primary));
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 25px rgba(59, 130, 246, 0.5);
+}
+
+/* Message de succès */
+.form-success {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.form-success i {
+    font-size: 3rem;
+    color: var(--services-success);
+    margin-bottom: 15px;
+}
+
+.form-success p {
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .service-card {
+        padding: 20px;
+    }
+    
+    .popup-content {
+        margin: 20% auto;
+        padding: 20px;
+        width: 90%;
+    }
+    
+    .service-actions {
+        flex-direction: column;
+    }
+    
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8rem;
+    }
+    
+    .price-tag {
+        font-size: 1.4rem;
+    }
+}
