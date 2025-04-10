@@ -44,9 +44,13 @@ let predictionData = {
 let dailyPredictionsLimit = 5; // Limite par défaut pour les utilisateurs gratuits
 let predictionsRemaining = 5; // Nombre de prédictions restantes aujourd'hui
 let isUserVIP = false; // Statut VIP de l'utilisateur
+let isAdmin = false; // Statut d'administrateur
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier le statut VIP et administrateur
+    checkVipAndAdminStatus();
+    
     // Initialisation de Telegram WebApp
     initTelegramWebApp();
     
@@ -62,6 +66,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialiser les écouteurs d'événements pour les champs de formulaire
     initFormListeners();
 });
+
+// Vérification du statut VIP et administrateur
+function checkVipAndAdminStatus() {
+    isUserVIP = localStorage.getItem('userVIPStatus') === 'true';
+    isAdmin = localStorage.getItem('isAdmin') === 'true';
+    
+    console.log("Statut VIP:", isUserVIP);
+    console.log("Statut Admin:", isAdmin);
+    
+    // Si l'utilisateur est administrateur, on s'assure qu'il a aussi le statut VIP
+    if (isAdmin && !isUserVIP) {
+        isUserVIP = true;
+        localStorage.setItem('userVIPStatus', 'true');
+    }
+}
 
 // Initialisation de Telegram WebApp
 function initTelegramWebApp() {
@@ -86,14 +105,16 @@ function loadPredictionsCount() {
     const lastPredictionDate = localStorage.getItem('lastPredictionDate');
     const today = new Date().toDateString();
     
-    // Vérifier le statut VIP
-    isUserVIP = localStorage.getItem('userVIPStatus') === 'true';
-    
     // Définir la limite en fonction du statut VIP
-    dailyPredictionsLimit = isUserVIP ? 25 : 5;
+    dailyPredictionsLimit = isUserVIP || isAdmin ? 25 : 5;
     
+    // Si administrateur, toujours avoir 999 prédictions
+    if (isAdmin) {
+        predictionsRemaining = 999;
+        localStorage.setItem('predictionsRemaining', predictionsRemaining);
+    }
     // Si c'est un nouveau jour, réinitialiser le compteur
-    if (lastPredictionDate !== today) {
+    else if (lastPredictionDate !== today) {
         predictionsRemaining = dailyPredictionsLimit;
         localStorage.setItem('predictionsRemaining', predictionsRemaining);
         localStorage.setItem('lastPredictionDate', today);
@@ -117,6 +138,9 @@ function updatePredictionsCounter() {
 
 // Décrémenter le compteur de prédictions
 function decrementPredictionsCount() {
+    // Si admin, ne pas décrémenter
+    if (isAdmin) return true;
+    
     if (predictionsRemaining > 0) {
         predictionsRemaining--;
         localStorage.setItem('predictionsRemaining', predictionsRemaining);
@@ -137,6 +161,9 @@ function decrementPredictionsCount() {
 
 // Vérifier si l'utilisateur peut faire une prédiction
 function canMakePrediction() {
+    // Si admin, toujours retourner true
+    if (isAdmin) return true;
+    
     if (predictionsRemaining <= 0) {
         // Afficher le popup de limite atteinte
         document.getElementById('limit-popup').style.display = 'block';
@@ -386,6 +413,7 @@ function validateStep4Inputs() {
     }
 }
 
+// Validation et passage à l'étape 5
 // Validation et passage à l'étape 5
 function validateStep4AndGoToStep5() {
     // Collecter et stocker les données
@@ -723,7 +751,8 @@ function resetAndGoToStep(stepNumber) {
     document.getElementById('loading-text').textContent = 'Prêt à générer...';
     
     // Vérifier si l'utilisateur peut encore faire des prédictions
-    if (predictionsRemaining <= 0) {
+    // Pour admin, on bypass cette vérification
+    if (!isAdmin && predictionsRemaining <= 0) {
         document.getElementById('limit-popup').style.display = 'block';
         return;
     }
