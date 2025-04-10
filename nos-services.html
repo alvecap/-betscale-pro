@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nos Services - BetScale Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="services.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="overlay"></div>
+    
+    <div class="container services-container">
+        <!-- Bouton Retour -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        
+        <!-- En-tête de la page -->
+        <header class="services-header">
+            <h1>Nos <span class="highlight">Services</span></h1>
+            <p class="subtitle">Des prestations premium pour t'aider à développer ta présence en ligne</p>
+        </header>
+        
+        <!-- Liste des services -->
+        <div class="services-grid">
+            <!-- Service 1: Chatbot IA -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>🤖 Création de Chatbot IA connecté à Telegram</h3>
+                <p class="service-description">Un bot IA connecté à un canal Telegram, qui envoie automatiquement des prédictions personnalisées à tes abonnés.</p>
+                <div class="service-price">
+                    <span class="price-tag">150 $</span>
+                </div>
+                <div class="service-actions">
+                    <button class="btn-preview" data-service="chatbot-ia">Aperçu</button>
+                    <button class="btn-interest" data-service="chatbot-ia" data-price="150">Je suis intéressé</button>
+                </div>
+            </div>
+            
+            <!-- Service 2: Bot IA simple -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h3>🤖 Création de Bot IA simple</h3>
+                <p class="service-description">Un bot IA personnel qui répond à tes questions ou fournit des prédictions selon ton input. Idéal pour les débuts.</p>
+                <div class="service-price">
+                    <span class="price-tag">70 $</span>
+                </div>
+                <div class="service-actions">
+                    <button class="btn-preview" data-service="bot-ia-simple">Aperçu</button>
+                    <button class="btn-interest" data-service="bot-ia-simple" data-price="70">Je suis intéressé</button>
+                </div>
+            </div>
+            
+            <!-- Service 3: Chaîne YouTube -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fab fa-youtube"></i>
+                </div>
+                <h3>📺 Création de chaîne YouTube professionnelle</h3>
+                <p class="service-description">On te livre une chaîne YouTube optimisée, structurée et prête à monétiser.</p>
+                <div class="service-price">
+                    <span class="price-tag">100 $</span>
+                </div>
+                <div class="service-actions">
+                    <button class="btn-preview" data-service="youtube-channel">Aperçu</button>
+                    <button class="btn-interest" data-service="youtube-channel" data-price="100">Je suis intéressé</button>
+                </div>
+            </div>
+            
+            <!-- Service 4: WebApp Telegram -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>🌐 Création de WebApp Telegram</h3>
+                <p class="service-description">Une application web complète, interactive, designée pour Telegram, avec IA intégrée.</p>
+                <div class="service-price">
+                    <span class="price-tag">300 $</span>
+                </div>
+                <div class="service-actions">
+                    <button class="btn-preview" data-service="webapp-telegram">Aperçu</button>
+                    <button class="btn-interest" data-service="webapp-telegram" data-price="300">Je suis intéressé</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popup Aperçu -->
+    <div id="preview-popup" class="popup">
+        <div class="popup-content preview-content">
+            <span class="close-popup" onclick="closePopup('preview-popup')">&times;</span>
+            <h2 id="preview-title">Détails du service</h2>
+            <div id="preview-details">
+                <!-- Contenu dynamique inséré par JavaScript -->
+            </div>
+            <button class="btn-interest-popup" id="popup-interest-btn">Je suis intéressé</button>
+        </div>
+    </div>
+    
+    <!-- Popup Formulaire d'intérêt -->
+    <div id="interest-popup" class="popup">
+        <div class="popup-content interest-content">
+            <span class="close-popup" onclick="closePopup('interest-popup')">&times;</span>
+            <h2>Demande d'information</h2>
+            <p class="form-intro">Merci pour ton intérêt ! Complète ces informations et nous te contacterons rapidement.</p>
+            
+            <form id="interest-form">
+                <input type="hidden" id="service-name" name="service">
+                
+                <div class="form-group">
+                    <label for="full-name">Nom complet</label>
+                    <input type="text" id="full-name" name="fullName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Adresse e-mail</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="budget">Budget proposé ($)</label>
+                    <input type="number" id="budget" name="budget" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message (optionnel)</label>
+                    <textarea id="message" name="message" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit">Envoyer ma demande</button>
+            </form>
+            
+            <div id="form-success" class="form-success">
+                <i class="fas fa-check-circle"></i>
+                <p>Demande envoyée avec succès ! Nous te contacterons bientôt.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="services.js"></script>
+</body>
+</html>
