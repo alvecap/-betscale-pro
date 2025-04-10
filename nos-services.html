@@ -115,6 +115,7 @@
             
             <form id="interest-form">
                 <input type="hidden" id="service-name" name="service">
+                <input type="hidden" id="min-price" name="minPrice">
                 
                 <div class="form-group">
                     <label for="full-name">Nom complet</label>
@@ -129,6 +130,10 @@
                 <div class="form-group">
                     <label for="budget">Budget proposé ($)</label>
                     <input type="number" id="budget" name="budget" min="1" required>
+                    <div class="price-notice">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Le prix minimum pour ce service est de <span id="display-min-price">--</span> $. Des fonctionnalités additionnelles peuvent faire varier le prix final.</span>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -136,12 +141,17 @@
                     <textarea id="message" name="message" rows="3"></textarea>
                 </div>
                 
+                <div id="price-error" class="form-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Le budget proposé doit être au moins égal au prix minimum du service.</span>
+                </div>
+                
                 <button type="submit" class="btn-submit">Envoyer ma demande</button>
             </form>
             
             <div id="form-success" class="form-success">
                 <i class="fas fa-check-circle"></i>
-                <p>Demande envoyée avec succès ! Nous te contacterons bientôt.</p>
+                <p>Ta demande a bien été reçue ! On te contacte dans les 24h pour te faire une offre personnalisée.</p>
             </div>
         </div>
     </div>
