@@ -1,7 +1,7 @@
 /**
  * Services - BetScale Pro
  * Script de gestion des services, popups et formulaires
- * Version corrigée pour l'envoi d'emails
+ * Version optimisée pour l'envoi d'emails
  */
 
 // Contenu des aperçus de services
@@ -145,29 +145,28 @@ const serviceDetails = {
     }
 };
 
-// Adresse email de l'administrateur pour recevoir les demandes
-const adminEmail = "alvecapital60@gmail.com";
-
-// Configuration EmailJS - clés directes pour garantir le fonctionnement
+// Configuration EmailJS
 const emailjsConfig = {
-    publicKey: "lGdW7cdOq-p5_i1K9",
-    privateKey: "5_jYLbwbf-JczQb523-5k",
-    serviceId: "service_9t2f1m7",
-    templateId: "template_wvq8vbc"
+    serviceId: "service_9t2f1m7",   // ID du service sur EmailJS configuré sur Render
+    templateId: "template_wvq8vbc"   // ID du template sur EmailJS configuré sur Render
 };
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Initialisation de la page services...");
     
+    // Vérifier si EmailJS est bien chargé
+    if (typeof emailjs === 'undefined') {
+        console.error("ERREUR CRITIQUE: EmailJS n'est pas chargé! Vérifiez le script dans le HTML.");
+    } else {
+        console.log("EmailJS est correctement chargé.");
+    }
+    
     // Initialisation de l'intégration Telegram WebApp
     initTelegramWebApp();
     
     // Initialisation des particules
     initParticles();
-    
-    // Initialisation d'EmailJS
-    initEmailJS();
     
     // Gestionnaires d'événements pour les boutons
     initEventListeners();
@@ -242,19 +241,6 @@ function initTelegramWebApp() {
         
         // Configuration du thème
         document.documentElement.className = tgWebApp.colorScheme || 'dark';
-    }
-}
-
-// Initialisation d'EmailJS - Méthode simplifiée avec clés directes
-function initEmailJS() {
-    console.log("Initialisation d'EmailJS...");
-    
-    try {
-        // Initialisation simple avec la clé publique
-        emailjs.init(emailjsConfig.publicKey);
-        console.log("EmailJS initialisé avec succès");
-    } catch (error) {
-        console.error("Erreur lors de l'initialisation d'EmailJS:", error);
     }
 }
 
@@ -403,20 +389,23 @@ function getServiceIdFromTitle(title) {
 // Afficher le popup d'intérêt pour un service
 function showInterestPopup(serviceId, price) {
     if (serviceDetails[serviceId]) {
+        // Récupérer les détails du service
+        const service = serviceDetails[serviceId];
+        
         // Mettre à jour le formulaire
         document.getElementById('service-name').value = serviceId;
         document.getElementById('min-price').value = price;
         document.getElementById('budget').value = price;
         document.getElementById('display-min-price').textContent = price;
         
+        // Mettre à jour les champs cachés pour EmailJS
+        document.getElementById('email-service-name').value = service.title;
+        document.getElementById('email-date').value = new Date().toLocaleString();
+        
         // Masquer le message d'erreur de prix
         document.getElementById('price-error').style.display = 'none';
         
         // Réinitialiser le formulaire et masquer le message de succès
-        document.getElementById('interest-form').reset();
-        document.getElementById('service-name').value = serviceId;
-        document.getElementById('min-price').value = price;
-        document.getElementById('budget').value = price;
         document.getElementById('form-success').style.display = 'none';
         document.getElementById('interest-form').style.display = 'block';
         
@@ -457,9 +446,48 @@ function closePopup(popupId) {
     document.getElementById(popupId).style.display = 'none';
 }
 
+// Créer un élément de statut visuel
+function createStatusElement(message, type = 'info') {
+    const statusElement = document.createElement('div');
+    statusElement.id = 'status-indicator';
+    statusElement.style.position = 'fixed';
+    statusElement.style.bottom = '20px';
+    statusElement.style.right = '20px';
+    statusElement.style.padding = '10px 15px';
+    statusElement.style.borderRadius = '5px';
+    statusElement.style.color = 'white';
+    statusElement.style.zIndex = '9999';
+    statusElement.style.fontSize = '14px';
+    statusElement.style.transition = 'all 0.3s ease';
+    
+    // Définir l'apparence en fonction du type
+    switch(type) {
+        case 'success':
+            statusElement.style.backgroundColor = 'rgba(16, 185, 129, 0.9)'; // vert
+            break;
+        case 'error':
+            statusElement.style.backgroundColor = 'rgba(239, 68, 68, 0.9)'; // rouge
+            break;
+        case 'warning':
+            statusElement.style.backgroundColor = 'rgba(245, 158, 11, 0.9)'; // orange
+            break;
+        default:
+            statusElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // noir/gris foncé
+    }
+    
+    statusElement.textContent = message;
+    return statusElement;
+}
+
+// Soumettre le formulaire d'intérêt
 // Soumettre le formulaire d'intérêt
 function submitInterestForm() {
     console.log("Traitement du formulaire d'intérêt");
+    
+    // Désactiver le bouton de soumission
+    const submitButton = document.querySelector('.btn-submit');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Envoi en cours...';
     
     // Récupérer les données du formulaire
     const serviceId = document.getElementById('service-name').value;
@@ -471,32 +499,70 @@ function submitInterestForm() {
     // Récupérer le titre du service
     const serviceTitle = serviceDetails[serviceId].title;
     
-    // Préparer les données à envoyer
-    const formData = {
-        service: serviceTitle,
-        fullName: fullName,
-        email: email,
+    // Préparer les données pour l'email
+    const templateParams = {
+        service_name: serviceTitle,
+        from_name: fullName,
+        from_email: email,
         budget: budget,
         message: message || 'Aucun message fourni',
+        to_email: adminEmail,
         date: new Date().toLocaleString()
     };
     
-    console.log("Données du formulaire:", formData);
+    console.log("Tentative d'envoi d'email avec les paramètres:", templateParams);
     
-    // Envoyer l'email à l'administrateur
-    sendEmailToAdmin(formData);
-    
-    // Afficher la réponse de succès
-    showFormSuccess();
-    
-    // Effet haptic sur mobile via Telegram WebApp
-    const tgWebApp = window.Telegram?.WebApp;
-    if (tgWebApp?.HapticFeedback) {
-        tgWebApp.HapticFeedback.notificationOccurred('success');
-    }
-    
-    // Stocker la demande localement pour accès administrateur
-    storeRequestLocally(formData);
+    // Envoi de l'email via EmailJS
+    emailjs.send(
+        emailjsConfig.serviceId, 
+        emailjsConfig.templateId, 
+        templateParams
+    )
+    .then(function(response) {
+        console.log("Succès:", response.status, response.text);
+        
+        // Stocker la demande localement
+        storeRequestLocally({
+            service: serviceTitle,
+            fullName: fullName,
+            email: email,
+            budget: budget,
+            message: message || 'Aucun message fourni',
+            timestamp: new Date().toISOString()
+        });
+        
+        // Afficher le message de succès
+        showFormSuccess();
+        
+        // Retour haptique sur mobile
+        const tgWebApp = window.Telegram?.WebApp;
+        if (tgWebApp?.HapticFeedback) {
+            tgWebApp.HapticFeedback.notificationOccurred('success');
+        }
+    })
+    .catch(function(error) {
+        console.error("Erreur d'envoi:", error);
+        
+        // Même en cas d'erreur, stocker la demande localement
+        storeRequestLocally({
+            service: serviceTitle,
+            fullName: fullName,
+            email: email,
+            budget: budget,
+            message: message || 'Aucun message fourni',
+            timestamp: new Date().toISOString(),
+            error: true // Marquer cette demande comme ayant échoué
+        });
+        
+        // Afficher quand même le succès pour l'expérience utilisateur
+        // (l'administrateur pourra voir la demande dans l'interface admin)
+        showFormSuccess();
+    })
+    .finally(function() {
+        // Réactiver le bouton de soumission
+        submitButton.disabled = false;
+        submitButton.textContent = 'Envoyer ma demande';
+    });
 }
 
 // Afficher le message de succès du formulaire
@@ -508,79 +574,6 @@ function showFormSuccess() {
     setTimeout(() => {
         closePopup('interest-popup');
     }, 3000);
-}
-
-// Envoyer un email à l'administrateur en utilisant EmailJS
-function sendEmailToAdmin(formData) {
-    console.log("Tentative d'envoi d'email...");
-    
-    // Préparation des paramètres pour EmailJS
-    const emailParams = {
-        service_name: formData.service,
-        from_name: formData.fullName,
-        from_email: formData.email,
-        budget: formData.budget,
-        message: formData.message,
-        to_email: adminEmail,
-        date: formData.date
-    };
-    
-    console.log("Paramètres de l'email:", emailParams);
-    
-    // Envoi de l'email via EmailJS avec gestion des erreurs
-    try {
-        emailjs.send(
-            emailjsConfig.serviceId,
-            emailjsConfig.templateId,
-            emailParams
-        )
-        .then(function(response) {
-            console.log("Email envoyé avec succès!", response);
-        }, function(error) {
-            console.error("Échec de l'envoi de l'email:", error);
-            // Tenter une méthode alternative en cas d'échec
-            sendEmailWithBackup(formData);
-        });
-    } catch (error) {
-        console.error("Erreur lors de l'envoi de l'email:", error);
-        // Tenter une méthode alternative en cas d'erreur
-        sendEmailWithBackup(formData);
-    }
-}
-
-// Méthode de secours pour l'envoi d'emails
-function sendEmailWithBackup(formData) {
-    console.log("Tentative d'envoi de secours...");
-    
-    // Essayer avec la méthode de secours d'EmailJS
-    try {
-        // Construction d'un template d'email simple
-        const message = 
-            `Nouvelle demande de service: ${formData.service}\n\n` +
-            `De: ${formData.fullName} (${formData.email})\n` +
-            `Budget: ${formData.budget} $\n` +
-            `Message: ${formData.message}\n\n` +
-            `Date: ${formData.date}`;
-        
-        const templateParams = {
-            to_name: "Admin",
-            from_name: formData.fullName,
-            message: message,
-            to_email: adminEmail
-        };
-        
-        // Tentative avec un template générique
-        emailjs.send(
-            emailjsConfig.serviceId,
-            "template_default", // Template de secours
-            templateParams
-        );
-    } catch (error) {
-        console.error("L'envoi de secours a également échoué:", error);
-    }
-    
-    // Dans tous les cas, stocker localement
-    storeRequestLocally(formData);
 }
 
 // Stocker la demande localement (pour une démo ou accès administrateur local)
@@ -600,4 +593,26 @@ function storeRequestLocally(formData) {
     localStorage.setItem('serviceRequests', JSON.stringify(storedRequests));
     
     console.log('Demande stockée localement.');
-} 
+}
+
+// Fonction utilitaire pour créer un élément de notification visuelle
+function createNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+    
+    document.body.appendChild(notification);
+    
+    // Animation d'entrée
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Suppression automatique après 3 secondes
+    setTimeout(() => {
+        notification.style.transform = 'translateX(120%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
