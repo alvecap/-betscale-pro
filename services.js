@@ -1,7 +1,7 @@
 /**
  * Services - BetScale Pro
  * Script de gestion des services, popups et formulaires
- * Version mise à jour avec sécurisation des clés API
+ * Version corrigée pour l'envoi d'emails
  */
 
 // Contenu des aperçus de services
@@ -148,23 +148,36 @@ const serviceDetails = {
 // Adresse email de l'administrateur pour recevoir les demandes
 const adminEmail = "alvecapital60@gmail.com";
 
-// Configuration EmailJS - IDs de service et template 
+// Configuration EmailJS - clés directes pour garantir le fonctionnement
 const emailjsConfig = {
+    publicKey: "lGdW7cdOq-p5_i1K9",
+    privateKey: "5_jYLbwbf-JczQb523-5k",
     serviceId: "service_9t2f1m7",
     templateId: "template_wvq8vbc"
 };
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("Initialisation de la page services...");
+    
     // Initialisation de l'intégration Telegram WebApp
     initTelegramWebApp();
     
     // Initialisation des particules
     initParticles();
     
-    // Initialisation EmailJS (sécurisée)
+    // Initialisation d'EmailJS
     initEmailJS();
     
+    // Gestionnaires d'événements pour les boutons
+    initEventListeners();
+    
+    // Animation d'entrée pour les cartes
+    animateServiceCards();
+});
+
+// Initialisation des gestionnaires d'événements
+function initEventListeners() {
     // Gestionnaires d'événements pour les boutons d'aperçu
     document.querySelectorAll('.btn-preview').forEach(button => {
         button.addEventListener('click', function() {
@@ -204,18 +217,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestionnaire d'événement pour le formulaire d'intérêt
     document.getElementById('interest-form').addEventListener('submit', function(e) {
         e.preventDefault();
+        console.log("Formulaire soumis");
         
         // Vérifier le budget minimum avant soumission
         if (!validateBudget()) {
+            console.log("Validation du budget échouée");
             return false;
         }
         
         submitInterestForm();
     });
-    
-    // Animation d'entrée pour les cartes
-    animateServiceCards();
-});
+}
 
 // Initialisation de Telegram WebApp
 function initTelegramWebApp() {
@@ -233,22 +245,16 @@ function initTelegramWebApp() {
     }
 }
 
-// Initialisation d'EmailJS avec gestion sécurisée des clés API
+// Initialisation d'EmailJS - Méthode simplifiée avec clés directes
 function initEmailJS() {
-    // Les clés seront chargées depuis Render Environment Variables
-    // Pour le développement local, on peut utiliser des clés de test
-    // Mais en production, on utilisera les variables d'environnement
+    console.log("Initialisation d'EmailJS...");
     
-    // Vérifier si window.EMAILJS_PUBLIC_KEY existe (injecté par Render dans index.html)
-    const publicKey = window.EMAILJS_PUBLIC_KEY || null;
-    
-    if (publicKey) {
-        // Initialiser EmailJS si la clé est disponible
-        emailjs.init(publicKey);
+    try {
+        // Initialisation simple avec la clé publique
+        emailjs.init(emailjsConfig.publicKey);
         console.log("EmailJS initialisé avec succès");
-    } else {
-        // Message pour le développement
-        console.log("EmailJS non initialisé - clé API manquante");
+    } catch (error) {
+        console.error("Erreur lors de l'initialisation d'EmailJS:", error);
     }
 }
 
@@ -453,6 +459,8 @@ function closePopup(popupId) {
 
 // Soumettre le formulaire d'intérêt
 function submitInterestForm() {
+    console.log("Traitement du formulaire d'intérêt");
+    
     // Récupérer les données du formulaire
     const serviceId = document.getElementById('service-name').value;
     const fullName = document.getElementById('full-name').value;
@@ -472,6 +480,8 @@ function submitInterestForm() {
         message: message || 'Aucun message fourni',
         date: new Date().toLocaleString()
     };
+    
+    console.log("Données du formulaire:", formData);
     
     // Envoyer l'email à l'administrateur
     sendEmailToAdmin(formData);
@@ -500,45 +510,83 @@ function showFormSuccess() {
     }, 3000);
 }
 
-// Envoyer un email à l'administrateur en utilisant EmailJS de façon sécurisée
+// Envoyer un email à l'administrateur en utilisant EmailJS
 function sendEmailToAdmin(formData) {
-    // Construire le corps de l'email pour le template
+    console.log("Tentative d'envoi d'email...");
+    
+    // Préparation des paramètres pour EmailJS
     const emailParams = {
-        to_email: adminEmail,
+        service_name: formData.service,
         from_name: formData.fullName,
         from_email: formData.email,
-        service_name: formData.service,
         budget: formData.budget,
         message: formData.message,
+        to_email: adminEmail,
         date: formData.date
     };
-
-    // Utiliser EmailJS pour envoyer l'email
+    
+    console.log("Paramètres de l'email:", emailParams);
+    
+    // Envoi de l'email via EmailJS avec gestion des erreurs
     try {
-        // Utiliser les IDs depuis la configuration
         emailjs.send(
-            emailjsConfig.serviceId, 
-            emailjsConfig.templateId, 
+            emailjsConfig.serviceId,
+            emailjsConfig.templateId,
             emailParams
         )
         .then(function(response) {
             console.log("Email envoyé avec succès!", response);
         }, function(error) {
             console.error("Échec de l'envoi de l'email:", error);
-            // Fallback si l'envoi échoue
-            storeRequestLocally(formData);
-            console.log("La demande a été stockée localement suite à l'échec de l'envoi");
+            // Tenter une méthode alternative en cas d'échec
+            sendEmailWithBackup(formData);
         });
-    } catch (e) {
-        console.error("Erreur lors de l'envoi de l'email:", e);
-        // Fallback si emailjs n'est pas correctement initialisé
-        storeRequestLocally(formData);
-        console.log("La demande a été stockée localement suite à une erreur");
+    } catch (error) {
+        console.error("Erreur lors de l'envoi de l'email:", error);
+        // Tenter une méthode alternative en cas d'erreur
+        sendEmailWithBackup(formData);
     }
+}
+
+// Méthode de secours pour l'envoi d'emails
+function sendEmailWithBackup(formData) {
+    console.log("Tentative d'envoi de secours...");
+    
+    // Essayer avec la méthode de secours d'EmailJS
+    try {
+        // Construction d'un template d'email simple
+        const message = 
+            `Nouvelle demande de service: ${formData.service}\n\n` +
+            `De: ${formData.fullName} (${formData.email})\n` +
+            `Budget: ${formData.budget} $\n` +
+            `Message: ${formData.message}\n\n` +
+            `Date: ${formData.date}`;
+        
+        const templateParams = {
+            to_name: "Admin",
+            from_name: formData.fullName,
+            message: message,
+            to_email: adminEmail
+        };
+        
+        // Tentative avec un template générique
+        emailjs.send(
+            emailjsConfig.serviceId,
+            "template_default", // Template de secours
+            templateParams
+        );
+    } catch (error) {
+        console.error("L'envoi de secours a également échoué:", error);
+    }
+    
+    // Dans tous les cas, stocker localement
+    storeRequestLocally(formData);
 }
 
 // Stocker la demande localement (pour une démo ou accès administrateur local)
 function storeRequestLocally(formData) {
+    console.log("Stockage local de la demande...");
+    
     // Récupérer les demandes existantes ou initialiser un tableau vide
     let storedRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
     
