@@ -8,8 +8,14 @@
     <link rel="stylesheet" href="services.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    <!-- EmailJS SDK - Ajout essentiel pour l'envoi d'emails -->
-    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <!-- EmailJS SDK - SDK à jour -->
+    <script type="text/javascript" src="https://cdn.emailjs.com/sdk/3.11.0/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialisation d'EmailJS avec la clé publique
+        (function() {
+            emailjs.init("lGdW7cdOq-p5_i1K9");
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
 <body>
@@ -121,12 +127,12 @@
                 
                 <div class="form-group">
                     <label for="full-name">Nom complet</label>
-                    <input type="text" id="full-name" name="fullName" required>
+                    <input type="text" id="full-name" name="from_name" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="email">Adresse e-mail</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="from_email" required>
                 </div>
                 
                 <div class="form-group">
@@ -143,6 +149,11 @@
                     <textarea id="message" name="message" rows="3"></textarea>
                 </div>
                 
+                <!-- Champs cachés pour EmailJS -->
+                <input type="hidden" name="service_name" id="email-service-name">
+                <input type="hidden" name="to_email" value="alvecapital60@gmail.com">
+                <input type="hidden" name="date" id="email-date">
+                
                 <div id="price-error" class="form-error">
                     <i class="fas fa-exclamation-triangle"></i>
                     <span>Le budget proposé doit être au moins égal au prix minimum du service.</span>
@@ -157,27 +168,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- Script de débogage pour le formulaire -->
-    <script>
-        // Log pour débogage du formulaire
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("Page chargée, vérification du SDK EmailJS");
-            if (typeof emailjs !== 'undefined') {
-                console.log("EmailJS SDK détecté");
-            } else {
-                console.error("EmailJS SDK non chargé!");
-                // Tenter de recharger le SDK si non détecté
-                const script = document.createElement('script');
-                script.src = 'https://cdn.emailjs.com/dist/email.min.js';
-                script.async = true;
-                document.head.appendChild(script);
-                script.onload = function() {
-                    console.log("EmailJS rechargé avec succès");
-                };
-            }
-        });
-    </script>
     
     <!-- Chargement du script services.js -->
     <script src="services.js"></script>
