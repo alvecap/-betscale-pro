@@ -8,7 +8,28 @@
     <link rel="stylesheet" href="services.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <!-- Ajouter EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <!-- Script d'injection des variables d'environnement de Render -->
+    <script>
+        // Ceci sera remplacé côté serveur par le processus de Render
+        window.EMAILJS_PUBLIC_KEY = '{{process.env.EMAIL_PUBLIC_KEY}}';
+        window.EMAILJS_SERVICE_ID = '{{process.env.EMAIL_SERVICE_ID}}';
+        window.EMAILJS_TEMPLATE_ID = '{{process.env.EMAIL_TEMPLATE_ID}}';
+        
+        // Vérification de la disponibilité des clés
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Vérification de la configuration...');
+            if (window.EMAILJS_PUBLIC_KEY && 
+                window.EMAILJS_PUBLIC_KEY !== '{{process.env.EMAIL_PUBLIC_KEY}}') {
+                console.log('Configuration EmailJS chargée avec succès');
+            } else {
+                console.warn('Variables d\'environnement non disponibles. Mode développement actif.');
+            }
+        });
+    </script>
 </head>
 <body>
     <div id="particles-js"></div>
