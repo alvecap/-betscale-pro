@@ -35,7 +35,7 @@
             <div class="god-card">
                 <h2>God Mode <span class="vip-badge">VIP</span></h2>
                 <div class="god-intro">
-                    <p class="god-intro-text">Notre système de prédiction le plus avancé utilisant un modèle de calcul basé sur 12 paramètres clés pour une précision maximale.</p>
+                    <p class="god-intro-text">Notre système de prédiction le plus avancé utilisant un modèle de calcul basé sur les cotes pour une précision maximale.</p>
                     
                     <div class="god-info-box">
                         <p><strong>Le God Mode vous fournit :</strong></p>
@@ -48,7 +48,7 @@
 
                     <div class="tooltip-info">
                         <i class="fas fa-info-circle"></i>
-                        <span class="info-text">Répondez aux 12 questions suivantes pour obtenir des prédictions ultra-précises sur n'importe quel match.</span>
+                        <span class="info-text">Répondez aux questions suivantes pour obtenir des prédictions ultra-précises sur n'importe quel match.</span>
                     </div>
                     
                     <div class="progress-container">
@@ -60,6 +60,11 @@
                             <div class="progress-section">2</div>
                             <div class="progress-section">3</div>
                             <div class="progress-section">4</div>
+                            <div class="progress-section">5</div>
+                            <div class="progress-section">6</div>
+                            <div class="progress-section">7</div>
+                            <div class="progress-section">8</div>
+                            <div class="progress-section">9</div>
                         </div>
                     </div>
                     
@@ -68,13 +73,13 @@
             </div>
         </div>
 
-        <!-- Section 1: Cotes de base -->
+        <!-- Section 1: Cotes classiques (1X2) -->
         <div class="god-step" id="section-1">
             <div class="god-card">
-                <h2>Cotes principales <span class="section-number">1/4</span></h2>
+                <h2>Cotes classiques (1X2) <span class="section-number">1/9</span></h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span class="info-text">Ces trois premières cotes permettent d'établir le favori du match et d'estimer l'équilibre des forces.</span>
+                    <span class="info-text">Ces trois cotes de base permettent d'établir le favori du match et d'estimer l'équilibre des forces.</span>
                 </div>
                 
                 <div class="question-group">
@@ -103,34 +108,26 @@
             </div>
         </div>
 
-        <!-- Section 2: Scores mi-temps -->
+        <!-- Section 2: Total 1 - Buts attendus par l'équipe à domicile -->
         <div class="god-step" id="section-2">
             <div class="god-card">
-                <h2>Scores par mi-temps <span class="section-number">2/4</span></h2>
+                <h2>Buts attendus - Domicile <span class="section-number">2/9</span></h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span class="info-text">Ces scores par période révèlent les tendances offensives et défensives des équipes au fil du match.</span>
+                    <span class="info-text">Ces cotes permettent d'évaluer l'intensité offensive de l'équipe à domicile.</span>
                 </div>
                 
                 <div class="question-group">
                     <div class="question-item">
-                        <label for="halftime-score">4. Score exact avec la plus petite cote en 1ʳᵉ mi-temps ?</label>
-                        <div class="score-input">
-                            <input type="number" id="home-halftime" min="0" max="10" placeholder="0" class="score-field">
-                            <span class="score-separator">-</span>
-                            <input type="number" id="away-halftime" min="0" max="10" placeholder="0" class="score-field">
-                        </div>
-                        <small class="input-help">Score de la première mi-temps le plus probable selon les cotes</small>
+                        <label for="home-over-15">1. Quelle est la cote pour +1,5 buts marqués par l'équipe à domicile ?</label>
+                        <input type="number" id="home-over-15" min="1" step="0.01" placeholder="Ex: 1.65" class="god-input">
+                        <small class="input-help">Cote pour que l'équipe à domicile marque au moins 2 buts</small>
                     </div>
                     
                     <div class="question-item">
-                        <label for="secondhalf-score">5. Score exact avec la plus petite cote en 2ᵉ mi-temps ?</label>
-                        <div class="score-input">
-                            <input type="number" id="home-secondhalf" min="0" max="10" placeholder="1" class="score-field">
-                            <span class="score-separator">-</span>
-                            <input type="number" id="away-secondhalf" min="0" max="10" placeholder="0" class="score-field">
-                        </div>
-                        <small class="input-help">Score de la deuxième mi-temps le plus probable selon les cotes</small>
+                        <label for="home-over-25">2. Quelle est la cote pour +2,5 buts marqués par l'équipe à domicile ?</label>
+                        <input type="number" id="home-over-25" min="1" step="0.01" placeholder="Ex: 2.70" class="god-input">
+                        <small class="input-help">Cote pour que l'équipe à domicile marque au moins 3 buts</small>
                     </div>
                 </div>
                 
@@ -141,54 +138,30 @@
             </div>
         </div>
 
-        <!-- Section 3: Scores alignés -->
+        <!-- Section 3: Score favori de l'équipe à domicile -->
         <div class="god-step" id="section-3">
             <div class="god-card">
-                <h2>Scores exacts alignés <span class="section-number">3/4</span></h2>
+                <h2>Score favori - Domicile <span class="section-number">3/9</span></h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span class="info-text">Les scores alignés par résultat (domicile/nul/extérieur) sont essentiels pour affiner les prédictions.</span>
+                    <span class="info-text">Ce score représente la projection principale du bookmaker pour le camp domicile.</span>
                 </div>
                 
                 <div class="question-group">
                     <div class="question-item">
-                        <label for="home-aligned">6. Score exact le plus probable aligné à gauche (domicile) ?</label>
+                        <label for="home-fav-score">1. Quel est le score exact aligné à gauche avec la plus petite cote ?</label>
                         <div class="score-input">
-                            <input type="number" id="home-aligned-home" min="0" max="10" placeholder="2" class="score-field">
+                            <input type="number" id="home-fav-home" min="0" max="10" placeholder="2" class="score-field">
                             <span class="score-separator">-</span>
-                            <input type="number" id="home-aligned-away" min="0" max="10" placeholder="0" class="score-field">
+                            <input type="number" id="home-fav-away" min="0" max="10" placeholder="0" class="score-field">
                         </div>
-                        <small class="input-help">Score favori pour une victoire de l'équipe à domicile</small>
+                        <small class="input-help">Score le plus probable pour une victoire de l'équipe à domicile</small>
                     </div>
                     
                     <div class="question-item">
-                        <label for="draw-aligned">7. Score exact le plus probable aligné au centre (nul) ?</label>
-                        <div class="score-input">
-                            <input type="number" id="draw-aligned-home" min="0" max="10" placeholder="1" class="score-field">
-                            <span class="score-separator">-</span>
-                            <input type="number" id="draw-aligned-away" min="0" max="10" placeholder="1" class="score-field">
-                        </div>
-                        <small class="input-help">Score favori pour un match nul</small>
-                    </div>
-                    
-                    <div class="question-item">
-                        <label for="away-aligned">8. Score exact le plus probable aligné à droite (extérieur) ?</label>
-                        <div class="score-input">
-                            <input type="number" id="away-aligned-home" min="0" max="10" placeholder="0" class="score-field">
-                            <span class="score-separator">-</span>
-                            <input type="number" id="away-aligned-away" min="0" max="10" placeholder="1" class="score-field">
-                        </div>
-                        <small class="input-help">Score favori pour une victoire de l'équipe à l'extérieur</small>
-                    </div>
-                    
-                    <div class="question-item">
-                        <label for="top-exact-score">9. Score exact avec la plus petite cote sur l'ensemble du temps réglementaire ?</label>
-                        <div class="score-input">
-                            <input type="number" id="top-exact-home" min="0" max="10" placeholder="2" class="score-field">
-                            <span class="score-separator">-</span>
-                            <input type="number" id="top-exact-away" min="0" max="10" placeholder="1" class="score-field">
-                        </div>
-                        <small class="input-help">Score exact global le plus probable selon les cotes</small>
+                        <label for="home-fav-odds">2. Quelle est la cote de ce score ?</label>
+                        <input type="number" id="home-fav-odds" min="1" step="0.01" placeholder="Ex: 7.50" class="god-input">
+                        <small class="input-help">Cote pour ce score exact</small>
                     </div>
                 </div>
                 
@@ -199,37 +172,213 @@
             </div>
         </div>
 
-        <!-- Section 4: Cotes spéciales -->
+        <!-- Section 4: Scores par période -->
         <div class="god-step" id="section-4">
             <div class="god-card">
-                <h2>Cotes spéciales <span class="section-number">4/4</span></h2>
+                <h2>Scores par période <span class="section-number">4/9</span></h2>
                 <div class="tooltip-info">
                     <i class="fas fa-info-circle"></i>
-                    <span class="info-text">Ces paramètres supplémentaires permettent d'améliorer significativement la précision des prédictions.</span>
+                    <span class="info-text">Ces scores permettent d'analyser les dynamiques de jeu par période et d'affiner les prédictions.</span>
                 </div>
                 
                 <div class="question-group">
                     <div class="question-item">
-                        <label for="btts-odds">10. Cote BTTS – OUI (les deux équipes marquent) ?</label>
-                        <input type="number" id="btts-odds" min="1" step="0.01" placeholder="Ex: 1.65" class="god-input">
+                        <label for="halftime-score">1. Quel est le score exact avec la plus petite cote pour la 1ʳᵉ mi-temps ?</label>
+                        <div class="score-input">
+                            <input type="number" id="halftime-home" min="0" max="10" placeholder="1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="halftime-away" min="0" max="10" placeholder="0" class="score-field">
+                        </div>
+                        <small class="input-help">Score le plus probable pour la mi-temps</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="halftime-odds">2. Quelle est la cote correspondante ?</label>
+                        <input type="number" id="halftime-odds" min="1" step="0.01" placeholder="Ex: 3.20" class="god-input">
+                        <small class="input-help">Cote pour ce score exact à la mi-temps</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="secondhalf-score">3. Quel est le score exact avec la plus petite cote pour la 2ᵉ mi-temps ?</label>
+                        <div class="score-input">
+                            <input type="number" id="secondhalf-home" min="0" max="10" placeholder="1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="secondhalf-away" min="0" max="10" placeholder="0" class="score-field">
+                        </div>
+                        <small class="input-help">Score le plus probable pour la deuxième mi-temps uniquement</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="secondhalf-odds">4. Quelle est la cote correspondante ?</label>
+                        <input type="number" id="secondhalf-odds" min="1" step="0.01" placeholder="Ex: 3.40" class="god-input">
+                        <small class="input-help">Cote pour ce score exact en deuxième mi-temps</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(3)">Retour</button>
+                    <button class="god-button" onclick="goToSection(5)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Score exact global du match -->
+        <div class="god-step" id="section-5">
+            <div class="god-card">
+                <h2>Score exact global <span class="section-number">5/9</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ce score sert de confirmation croisée pour affiner la prédiction finale.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="exact-score">1. Quel est le score exact le plus probable sur tout le match ?</label>
+                        <div class="score-input">
+                            <input type="number" id="exact-home" min="0" max="10" placeholder="2" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="exact-away" min="0" max="10" placeholder="1" class="score-field">
+                        </div>
+                        <small class="input-help">Score exact avec la plus petite cote, peu importe la colonne</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="exact-odds">2. Quelle est sa cote ?</label>
+                        <input type="number" id="exact-odds" min="1" step="0.01" placeholder="Ex: 8.50" class="god-input">
+                        <small class="input-help">Cote pour ce score exact</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(4)">Retour</button>
+                    <button class="god-button" onclick="goToSection(6)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: BTTS + Handicap -->
+        <div class="god-step" id="section-6">
+            <div class="god-card">
+                <h2>BTTS + Handicap <span class="section-number">6/9</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ces cotes servent à jauger le risque de but des deux côtés et la probabilité d'écart de buts.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="btts-odds">1. Quelle est la cote BTTS - OUI (les deux équipes marquent) ?</label>
+                        <input type="number" id="btts-odds" min="1" step="0.01" placeholder="Ex: 1.85" class="god-input">
                         <small class="input-help">Plus la cote est basse, plus il est probable que les deux équipes marquent</small>
                     </div>
                     
                     <div class="question-item">
-                        <label for="over-odds">11. Cote de +2,5 buts ?</label>
-                        <input type="number" id="over-odds" min="1" step="0.01" placeholder="Ex: 1.90" class="god-input">
-                        <small class="input-help">Cote pour qu'il y ait plus de 2,5 buts dans le match</small>
-                    </div>
-                    
-                    <div class="question-item">
-                        <label for="handicap-odds">12. Cote du handicap -1 sur le favori ?</label>
+                        <label for="handicap-odds">2. Quelle est la cote du handicap -1 pour l'équipe favorite ?</label>
                         <input type="number" id="handicap-odds" min="1" step="0.01" placeholder="Ex: 2.10" class="god-input">
                         <small class="input-help">Cote pour que l'équipe favorite gagne avec au moins 2 buts d'écart</small>
                     </div>
                 </div>
                 
                 <div class="section-navigation">
-                    <button class="god-button secondary-button" onclick="goToSection(3)">Retour</button>
+                    <button class="god-button secondary-button" onclick="goToSection(5)">Retour</button>
+                    <button class="god-button" onclick="goToSection(7)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Total 2 - Buts attendus par l'équipe à l'extérieur -->
+        <div class="god-step" id="section-7">
+            <div class="god-card">
+                <h2>Buts attendus - Extérieur <span class="section-number">7/9</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ces cotes permettent d'évaluer l'intensité offensive de l'équipe à l'extérieur.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="away-over-15">1. Quelle est la cote pour +1,5 buts marqués par l'équipe à l'extérieur ?</label>
+                        <input type="number" id="away-over-15" min="1" step="0.01" placeholder="Ex: 2.20" class="god-input">
+                        <small class="input-help">Cote pour que l'équipe à l'extérieur marque au moins 2 buts</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="away-over-25">2. Quelle est la cote pour +2,5 buts marqués par l'équipe à l'extérieur ?</label>
+                        <input type="number" id="away-over-25" min="1" step="0.01" placeholder="Ex: 4.50" class="god-input">
+                        <small class="input-help">Cote pour que l'équipe à l'extérieur marque au moins 3 buts</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(6)">Retour</button>
+                    <button class="god-button" onclick="goToSection(8)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8: Score favori équipe extérieure -->
+        <div class="god-step" id="section-8">
+            <div class="god-card">
+                <h2>Score favori - Extérieur <span class="section-number">8/9</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ce score sert à ajuster les deux scores exacts potentiels pour une meilleure précision.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="away-fav-score">1. Quel est le score exact aligné à droite avec la plus petite cote ?</label>
+                        <div class="score-input">
+                            <input type="number" id="away-fav-home" min="0" max="10" placeholder="0" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="away-fav-away" min="0" max="10" placeholder="2" class="score-field">
+                        </div>
+                        <small class="input-help">Score le plus probable pour une victoire de l'équipe à l'extérieur</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="away-fav-odds">2. Quelle est la cote correspondante ?</label>
+                        <input type="number" id="away-fav-odds" min="1" step="0.01" placeholder="Ex: 11.00" class="god-input">
+                        <small class="input-help">Cote pour ce score exact</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(7)">Retour</button>
+                    <button class="god-button" onclick="goToSection(9)">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 9: Score favori du match nul -->
+        <div class="god-step" id="section-9">
+            <div class="god-card">
+                <h2>Score favori - Match Nul <span class="section-number">9/9</span></h2>
+                <div class="tooltip-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="info-text">Ce score aide à détecter une tendance défensive ou fermée et à affiner la prédiction finale.</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-item">
+                        <label for="draw-fav-score">1. Quel est le score exact du nul avec la plus petite cote ?</label>
+                        <div class="score-input">
+                            <input type="number" id="draw-fav-home" min="0" max="10" placeholder="1" class="score-field">
+                            <span class="score-separator">-</span>
+                            <input type="number" id="draw-fav-away" min="0" max="10" placeholder="1" class="score-field">
+                        </div>
+                        <small class="input-help">Score le plus probable pour un match nul</small>
+                    </div>
+                    
+                    <div class="question-item">
+                        <label for="draw-fav-odds">2. Quelle est la cote correspondante ?</label>
+                        <input type="number" id="draw-fav-odds" min="1" step="0.01" placeholder="Ex: 6.50" class="god-input">
+                        <small class="input-help">Cote pour ce score exact</small>
+                    </div>
+                </div>
+                
+                <div class="section-navigation">
+                    <button class="god-button secondary-button" onclick="goToSection(8)">Retour</button>
                     <button class="god-button generate-button" onclick="generateGodPredictions()">
                         <i class="fas fa-bolt"></i> Générer les prédictions
                     </button>
@@ -243,8 +392,9 @@
                 <h2>Calcul des prédictions</h2>
                 <div class="generating-content">
                     <div class="generating-animation">
+                        <div class="energy-circle"></div>
                         <div class="generating-icon">
-                            <i class="fas fa-crown fa-spin"></i>
+                            <i class="fas fa-crown"></i>
                         </div>
                         <div class="energy-rays">
                             <div class="ray ray1"></div>
@@ -252,7 +402,15 @@
                             <div class="ray ray3"></div>
                             <div class="ray ray4"></div>
                         </div>
-                        <p id="generating-text">Traitement des données...</p>
+                        <div class="calculation-particles">
+                            <div class="particle p1"></div>
+                            <div class="particle p2"></div>
+                            <div class="particle p3"></div>
+                            <div class="particle p4"></div>
+                            <div class="particle p5"></div>
+                            <div class="particle p6"></div>
+                        </div>
+                        <p id="generating-text">Initialisation du modèle...</p>
                         <div class="generating-progress">
                             <div class="generating-fill"></div>
                         </div>
@@ -272,9 +430,9 @@
                             <div class="result-icon">
                                 <i class="fas fa-trophy"></i>
                             </div>
-                            <div class="result-value">Victoire de l'équipe à domicile</div>
+                            <div class="result-value">Calcul en cours...</div>
                             <div class="reliability">
-                                <span class="reliability-value" id="result-reliability">97%</span>
+                                <span class="reliability-value" id="result-reliability">--</span>
                                 <span class="reliability-label">Fiabilité</span>
                             </div>
                         </div>
@@ -287,9 +445,9 @@
                                 <div class="result-icon">
                                     <i class="fas fa-star"></i>
                                 </div>
-                                <div class="result-value">2-1</div>
+                                <div class="result-value">Calcul en cours...</div>
                                 <div class="reliability">
-                                    <span class="reliability-value" id="primary-score-reliability">86%</span>
+                                    <span class="reliability-value" id="primary-score-reliability">--</span>
                                     <span class="reliability-label">Fiabilité</span>
                                 </div>
                             </div>
@@ -298,9 +456,9 @@
                                 <div class="result-icon">
                                     <i class="far fa-star"></i>
                                 </div>
-                                <div class="result-value">2-0</div>
+                                <div class="result-value">Calcul en cours...</div>
                                 <div class="reliability">
-                                    <span class="reliability-value" id="secondary-score-reliability">72%</span>
+                                    <span class="reliability-value" id="secondary-score-reliability">--</span>
                                     <span class="reliability-label">Fiabilité</span>
                                 </div>
                             </div>
@@ -313,9 +471,9 @@
                             <div class="result-icon">
                                 <i class="fas fa-bullseye"></i>
                             </div>
-                            <div class="result-value">+1.5 buts</div>
+                            <div class="result-value">Calcul en cours...</div>
                             <div class="reliability">
-                                <span class="reliability-value" id="goals-reliability">99.8%</span>
+                                <span class="reliability-value" id="goals-reliability">--</span>
                                 <span class="reliability-label">Fiabilité</span>
                             </div>
                         </div>
@@ -355,6 +513,6 @@
         </div>
     </div>
     
-    <script src="god-mode.js"></script>
+    <script src="god-mode-v2.js"></script>
 </body>
 </html>
