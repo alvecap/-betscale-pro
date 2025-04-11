@@ -8,28 +8,9 @@
     <link rel="stylesheet" href="services.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    <!-- Ajouter EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- EmailJS SDK - Ajout essentiel pour l'envoi d'emails -->
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    
-    <!-- Script d'injection des variables d'environnement de Render -->
-    <script>
-        // Ceci sera remplacé côté serveur par le processus de Render
-        window.EMAILJS_PUBLIC_KEY = '{{process.env.EMAIL_PUBLIC_KEY}}';
-        window.EMAILJS_SERVICE_ID = '{{process.env.EMAIL_SERVICE_ID}}';
-        window.EMAILJS_TEMPLATE_ID = '{{process.env.EMAIL_TEMPLATE_ID}}';
-        
-        // Vérification de la disponibilité des clés
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Vérification de la configuration...');
-            if (window.EMAILJS_PUBLIC_KEY && 
-                window.EMAILJS_PUBLIC_KEY !== '{{process.env.EMAIL_PUBLIC_KEY}}') {
-                console.log('Configuration EmailJS chargée avec succès');
-            } else {
-                console.warn('Variables d\'environnement non disponibles. Mode développement actif.');
-            }
-        });
-    </script>
 </head>
 <body>
     <div id="particles-js"></div>
@@ -177,6 +158,28 @@
         </div>
     </div>
     
+    <!-- Script de débogage pour le formulaire -->
+    <script>
+        // Log pour débogage du formulaire
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Page chargée, vérification du SDK EmailJS");
+            if (typeof emailjs !== 'undefined') {
+                console.log("EmailJS SDK détecté");
+            } else {
+                console.error("EmailJS SDK non chargé!");
+                // Tenter de recharger le SDK si non détecté
+                const script = document.createElement('script');
+                script.src = 'https://cdn.emailjs.com/dist/email.min.js';
+                script.async = true;
+                document.head.appendChild(script);
+                script.onload = function() {
+                    console.log("EmailJS rechargé avec succès");
+                };
+            }
+        });
+    </script>
+    
+    <!-- Chargement du script services.js -->
     <script src="services.js"></script>
 </body>
 </html>
