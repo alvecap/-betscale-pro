@@ -1,0 +1,97 @@
+from pathlib import Path
+
+# HTML content for the "À propos" section
+html_content = """
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À propos - BetScale Pro</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #1c1c1c;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #000;
+        }
+        h1, h2 {
+            color: #ffffff;
+        }
+        blockquote {
+            font-style: italic;
+            color: #aaaaaa;
+            border-left: 4px solid #1e90ff;
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>À propos de moi</h1>
+        <blockquote>« J’ai commencé comme tout le monde… mais j’ai décidé de ne plus jamais parier comme tout le monde. »</blockquote>
+
+        <p>👋 <strong>Bienvenue sur BetScale Pro</strong><br>
+        Je m'appelle <strong>Alex Verol</strong>, créateur de contenu, expert en stratégies de paris sportifs, développeur de solutions IA et fondateur de la chaîne <a href="https://www.youtube.com/@alvecapital" target="_blank">AL VE CAPITAL</a>, suivie par plus de <strong>65 000 abonnés</strong>.</p>
+
+        <h2>💡 Pourquoi cette WebApp ?</h2>
+        <p>Parce que je sais que :</p>
+        <ul>
+            <li>📉 Analyser les matchs est épuisant</li>
+            <li>💸 Perdre encore et encore avec les mêmes méthodes, c’est frustrant</li>
+            <li>⏱️ Les parieurs n’ont ni le temps ni les outils adaptés</li>
+        </ul>
+        <p>C’est pour ça que j’ai créé cette plateforme :<br>
+        👉 Un espace intelligent, <strong>piloté par l’IA</strong>, qui te propose des <strong>prédictions basées sur les cotes</strong> — pas sur des avis ou des “pronostics du cœur”.</p>
+
+        <h2>🧬 Ce que tu trouves ici :</h2>
+        <ul>
+            <li>Des <strong>outils VIP</strong> jamais dévoilés ailleurs</li>
+            <li>Des <strong>stratégies légales et efficaces</strong> que les bookmakers redoutent</li>
+            <li>Des <strong>simulations automatiques</strong> qui font les calculs à ta place</li>
+            <li>Une <strong>communauté Telegram engagée</strong>, qui suit mes conseils chaque jour</li>
+        </ul>
+
+        <h2>📈 Résultats ?</h2>
+        <ul>
+            <li>Deux chaînes YouTube :
+                <ul>
+                    <li><a href="https://www.youtube.com/@alvecapital" target="_blank">AL VE CAPITAL</a> – +65 000 abonnés</li>
+                    <li><a href="https://www.youtube.com/@alexverol" target="_blank">Alex Verol</a> – monétisée en moins d’1 mois</li>
+                </ul>
+            </li>
+            <li>Un bot IA connecté à mon canal Telegram</li>
+            <li>Des WebApps thématiques en cours de déploiement</li>
+            <li>Et surtout, des centaines de retours de parieurs qui gagnent plus vite et plus proprement</li>
+        </ul>
+
+        <blockquote><strong>BetScale Pro</strong>, ce n’est pas un simple outil. C’est ton raccourci vers la compréhension profonde du jeu.<br>
+        Tu ne subis plus les paris : <strong>tu les contrôles.</strong></blockquote>
+    </div>
+</body>
+</html>
+"""
+
+# Save the HTML file
+file_path = Path("/mnt/data/a_propos_betscale_pro.html")
+file_path.write_text(html_content, encoding='utf-8')
+
+file_path.name
