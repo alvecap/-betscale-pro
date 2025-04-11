@@ -1,6 +1,7 @@
 /**
  * God Mode - BetScale Pro
  * Script de gestion des prédictions avancées et navigation entre les sections
+ * Version améliorée avec corrections des calculs de prédiction
  */
 
 // Variables globales pour stocker les données
@@ -46,7 +47,8 @@ let godPredictionData = {
     goalsReliability: null,
     
     // Facteurs d'analyse
-    favoriteTeam: null // "home", "away", ou "draw"
+    favoriteTeam: null, // "home", "away", ou "draw"
+    favoriteStrength: null // Intensité de la préférence (0-1)
 };
 
 // Variables pour stockage des analyses intermédiaires (pour le modèle avancé)
@@ -62,7 +64,16 @@ let analysisData = {
         home: 0,
         away: 0
     },
-    scoreProbabilityMatrix: [] // Matrice de probabilité des scores
+    expectedGoals: {          // xG calculés pour le match
+        home: 0,
+        away: 0
+    },
+    scoreProbabilityMatrix: [], // Matrice de probabilité des scores
+    scoreThresholds: {        // Seuils pour les types de scores
+        low: 1.5,             // Peu de buts
+        medium: 2.5,          // Nombre de buts moyen
+        high: 3.5             // Beaucoup de buts
+    }
 };
 
 // Variables pour la gestion des prédictions quotidiennes
@@ -491,7 +502,7 @@ function generateGodPredictions() {
     
     // Calcul des prédictions avancées
     setTimeout(() => {
-        // Utiliser le nouveau modèle de prédiction avancé
+        // Utiliser le modèle de prédiction amélioré
         calculateGodPredictions();
         
         // Décrémenter le compteur de prédictions (sauf pour admin)
@@ -560,93 +571,207 @@ function startGeneratingAnimation() {
     }, 2900);
 }
 
-// Calcul des prédictions God Mode avancé
+// Calcul des prédictions God Mode amélioré
 function calculateGodPredictions() {
-    // 1. Déterminer l'équipe favorite et le résultat du match en fonction des cotes
-    analyzeOddsAndDetermineResult();
+    // 1. Analyser les cotes et déterminer le favori
+    analyzeOddsAndDetermineFavorite();
     
-    // 2. Analyser les tendances offensives/défensives basées sur les scores mi-temps
-    analyzeHalftimeTrends();
+    // 2. Calculer la probabilité de buts pour chaque équipe (Expected Goals)
+    calculateExpectedGoals();
     
-    // 3. Créer un score de base pondéré en utilisant toutes les données
-    calculateWeightedBaseScore();
+    // 3. Analyser les tendances offensives/défensives
+    analyzeTeamTrends();
     
-    // 4. Calculer le score exact principal avec des ajustements contextuels
-    calculateAdvancedPrimaryScore();
+    // 4. Générer la matrice de probabilité des scores
+    generateScoreProbabilityMatrix();
     
-    // 5. Calculer le score exact secondaire basé sur une matrice de probabilité
-    calculateAdvancedSecondaryScore();
+    // 5. Sélectionner les scores exacts les plus probables
+    selectExactScores();
     
-    // 6. Calculer la prédiction du nombre de buts avec la règle -1
-    calculatePrudentGoalsPrediction();
+    // 6. Déterminer le résultat du match (1, X, 2) ou double chance (1X, X2)
+    determineMatchResult();
     
-    // 7. Calculer les fiabilités basées sur la cohérence des données
-    calculateAdvancedReliabilities();
+    // 7. Calculer la prédiction du nombre de buts avec la règle -1 but (correctement)
+    calculateCorrectGoalsPrediction();
+    
+    // 8. Calculer les fiabilités des prédictions
+    calculatePredictionReliabilities();
 }
 
-// Analyse des cotes et détermination du résultat probable
-function analyzeOddsAndDetermineResult() {
-    const { homeOdds, drawOdds, awayOdds, bttsOdds, overOdds, handicapOdds } = godPredictionData;
+// Analyse des cotes et détermination du favori
+function analyzeOddsAndDetermineFavorite() {
+    const { homeOdds, drawOdds, awayOdds } = godPredictionData;
     
-    // Déterminer l'équipe favorite basée sur les cotes 1X2
-    if (homeOdds < awayOdds && homeOdds < drawOdds) {
+    // Calculer l'écart entre les cotes pour déterminer la force de la préférence
+    let oddsGap = 0;
+    
+    // Déterminer l'équipe favorite et l'écart des cotes
+    if (homeOdds <= awayOdds && homeOdds <= drawOdds) {
         godPredictionData.favoriteTeam = 'home';
-    } else if (awayOdds < homeOdds && awayOdds < drawOdds) {
+        oddsGap = Math.min(awayOdds - homeOdds, drawOdds - homeOdds);
+    } else if (awayOdds <= homeOdds && awayOdds <= drawOdds) {
         godPredictionData.favoriteTeam = 'away';
+        oddsGap = Math.min(homeOdds - awayOdds, drawOdds - awayOdds);
     } else {
         godPredictionData.favoriteTeam = 'draw';
+        oddsGap = Math.min(homeOdds - drawOdds, awayOdds - drawOdds);
     }
     
-    // Calcul de la cohérence des cotes
-    // Si les cotes pour BTTS, Over et Handicap sont toutes cohérentes avec l'équipe favorite
+    // Normaliser l'écart des cotes pour obtenir la force du favori (0-1)
+    // Plus l'écart est grand, plus le favori est fort
+    godPredictionData.favoriteStrength = Math.min(1, oddsGap / 2);
+    
+    // Calculer la cohérence des cotes spéciales avec le favori
+    analyzeSpecialOddsConsistency();
+}
+
+// Analyse de la cohérence des cotes spéciales
+function analyzeSpecialOddsConsistency() {
+    const { favoriteTeam, bttsOdds, overOdds, handicapOdds } = godPredictionData;
+    
+    // Variables pour la cohérence
+    let consistencyScore = 0;
     const lowBTTS = bttsOdds < 1.80; // Les deux équipes marqueront probablement
-    const highOver = overOdds < 1.70; // Plus de 2.5 buts probables
-    const lowHandicap = handicapOdds < 2.00; // Favori gagne avec écart
+    const highBTTS = bttsOdds > 2.20; // Les deux équipes ne marqueront probablement pas
+    const lowOver = overOdds < 1.80; // Plus de 2.5 buts très probables
+    const highOver = overOdds > 2.20; // Plus de 2.5 buts peu probables
+    const lowHandicap = handicapOdds < 2.20; // Favori gagne avec écart probable
+    
+    // Ajuster le niveau de scoring attendu en fonction des cotes
+    if (lowOver) {
+        analysisData.scoreThresholds.medium = 2.5; // Standard
+        analysisData.scoreThresholds.high = 3.5;
+    } else if (highOver) {
+        analysisData.scoreThresholds.medium = 1.5; // Moins de buts attendus
+        analysisData.scoreThresholds.high = 2.5;
+    } else {
+        analysisData.scoreThresholds.medium = 2.0; // Valeur intermédiaire
+        analysisData.scoreThresholds.high = 3.0;
+    }
     
     // Cohérence pour équipe à domicile favorite
-    if (godPredictionData.favoriteTeam === 'home') {
-        const homeConsistency = (lowHandicap ? 0.3 : 0) + (lowBTTS ? 0.1 : 0.2) + (highOver ? 0.2 : 0);
-        analysisData.oddsConsistency = homeConsistency;
+    if (favoriteTeam === 'home') {
+        // Une équipe à domicile favorite est généralement cohérente avec:
+        // - Un handicap bas (victoire avec écart)
+        // - BTTS bas si forte défense, BTTS élevé si faible défense
+        // - Over bas (beaucoup de buts)
+        consistencyScore = lowHandicap ? 0.3 : 0;
+        consistencyScore += (lowOver) ? 0.3 : 0;
+        
+        // BTTS dépend du contexte - à affiner plus tard
+        consistencyScore += 0.2;
     } 
     // Cohérence pour équipe à l'extérieur favorite
-    else if (godPredictionData.favoriteTeam === 'away') {
-        const awayConsistency = (lowHandicap ? 0.3 : 0) + (lowBTTS ? 0.1 : 0.2) + (highOver ? 0.2 : 0);
-        analysisData.oddsConsistency = awayConsistency;
+    else if (favoriteTeam === 'away') {
+        // Une équipe à l'extérieur favorite est généralement cohérente avec:
+        // - Un handicap bas (victoire avec écart)
+        // - BTTS peut être haut ou bas
+        // - Over souvent bas (beaucoup de buts)
+        consistencyScore = lowHandicap ? 0.3 : 0;
+        consistencyScore += (lowOver) ? 0.3 : 0;
+        consistencyScore += 0.2;
     } 
     // Cohérence pour match nul
     else {
-        const drawConsistency = (lowBTTS ? 0.2 : 0) + (!lowHandicap ? 0.2 : 0);
-        analysisData.oddsConsistency = drawConsistency;
+        // Un match nul favori est généralement cohérent avec:
+        // - Un handicap élevé (pas de victoire avec écart)
+        // - BTTS souvent bas (peu de buts de chaque côté)
+        // - Over souvent élevé (peu de buts au total)
+        consistencyScore = (!lowHandicap) ? 0.3 : 0;
+        consistencyScore += (highOver) ? 0.3 : 0;
+        consistencyScore += (highBTTS) ? 0.2 : 0;
     }
     
-    // Détermine le résultat basé sur les cotes et leur cohérence
-    if (godPredictionData.favoriteTeam === 'home') {
-        if (homeOdds <= 1.50 || analysisData.oddsConsistency >= 0.5) {
-            godPredictionData.matchResult = "Victoire de l'équipe à domicile";
-        } else {
-            godPredictionData.matchResult = "Double chance 1X (Domicile ou Nul)";
+    // Ajuster la cohérence en fonction du BTTS
+    if (favoriteTeam === 'home' || favoriteTeam === 'away') {
+        // Pour une équipe favorite, un BTTS élevé est moins cohérent
+        // avec une victoire franche
+        if (lowBTTS && godPredictionData.favoriteStrength > 0.5) {
+            consistencyScore += 0.2;
         }
-    } else if (godPredictionData.favoriteTeam === 'away') {
-        if (awayOdds <= 1.50 || analysisData.oddsConsistency >= 0.5) {
-            godPredictionData.matchResult = "Victoire de l'équipe à l'extérieur";
-        } else {
-            godPredictionData.matchResult = "Double chance X2 (Nul ou Extérieur)";
-        }
-    } else {
-        godPredictionData.matchResult = "Match nul";
     }
     
-    // Calculer la probabilité de marquer basée sur BTTS et Over
-    analysisData.scoringProbability = 0.5 + (1.90 - bttsOdds) * 0.1 + (1.90 - overOdds) * 0.15;
+    // Stocker la cohérence des cotes
+    analysisData.oddsConsistency = consistencyScore;
+    
+    // Calculer la probabilité de buts basée sur les cotes
+    const bttsEffect = (2.0 - Math.min(2.0, bttsOdds)) * 0.15;
+    const overEffect = (2.0 - Math.min(2.0, overOdds)) * 0.2;
+    analysisData.scoringProbability = 0.5 + bttsEffect + overEffect;
+    
     // Limiter entre 0.3 et 0.9
     analysisData.scoringProbability = Math.max(0.3, Math.min(0.9, analysisData.scoringProbability));
 }
 
-// Analyse des tendances offensives/défensives basées sur les scores mi-temps
-function analyzeHalftimeTrends() {
+// Calcul des Expected Goals (xG) pour chaque équipe
+function calculateExpectedGoals() {
+    const {
+        homeOdds, awayOdds, drawOdds,
+        bttsOdds, overOdds,
+        favoriteTeam, favoriteStrength
+    } = godPredictionData;
+    
+    // Convertir les cotes en probabilités implicites
+    const homeProb = 1 / homeOdds;
+    const awayProb = 1 / awayOdds;
+    const drawProb = 1 / drawOdds;
+    
+    // Base xG à partir des cotes principales
+    let baseHomeXG = 1.2 * homeProb + 0.8 * (1 - awayProb);
+    let baseAwayXG = 1.2 * awayProb + 0.8 * (1 - homeProb);
+    
+    // Ajuster xG en fonction de BTTS et Over/Under
+    const bttsEffect = 2.0 - Math.min(2.0, bttsOdds);
+    const overEffect = 2.0 - Math.min(2.0, overOdds);
+    
+    // Probabilité que les deux équipes marquent augmente les xG
+    if (bttsOdds < 2.0) {
+        baseHomeXG += bttsEffect * 0.2;
+        baseAwayXG += bttsEffect * 0.2;
+    }
+    
+    // Probabilité de plus de 2.5 buts augmente le total des xG
+    if (overOdds < 2.0) {
+        const totalXGBoost = overEffect * 0.5;
+        // Répartir le boost en fonction du favori
+        if (favoriteTeam === 'home') {
+            baseHomeXG += totalXGBoost * 0.6;
+            baseAwayXG += totalXGBoost * 0.4;
+        } else if (favoriteTeam === 'away') {
+            baseHomeXG += totalXGBoost * 0.4;
+            baseAwayXG += totalXGBoost * 0.6;
+        } else {
+            baseHomeXG += totalXGBoost * 0.5;
+            baseAwayXG += totalXGBoost * 0.5;
+        }
+    }
+    
+    // Ajuster en fonction de la force du favori
+    if (favoriteTeam === 'home') {
+        baseHomeXG += favoriteStrength * 0.5;
+        baseAwayXG -= favoriteStrength * 0.3;
+    } else if (favoriteTeam === 'away') {
+        baseAwayXG += favoriteStrength * 0.5;
+        baseHomeXG -= favoriteStrength * 0.3;
+    }
+    
+    // Limiter les valeurs à des plages réalistes (0.3 à 3.0)
+    analysisData.expectedGoals = {
+        home: Math.max(0.3, Math.min(3.0, baseHomeXG)),
+        away: Math.max(0.3, Math.min(3.0, baseAwayXG))
+    };
+}
+
+// Analyse des tendances offensives/défensives
+function analyzeTeamTrends() {
     const { 
         homeHalftime, awayHalftime, 
-        homeSecondHalf, awaySecondHalf 
+        homeSecondHalf, awaySecondHalf,
+        homeAlignedHome, homeAlignedAway,
+        drawAlignedHome, drawAlignedAway,
+        awayAlignedHome, awayAlignedAway,
+        topExactHome, topExactAway,
+        favoriteTeam
     } = godPredictionData;
     
     // Calculer les tendances offensives basées sur différences de buts entre mi-temps
@@ -666,10 +791,13 @@ function analyzeHalftimeTrends() {
     // Inverser et normaliser: moins de buts concédés = meilleure défense
     analysisData.defensiveStrengthHome = 1 - Math.min(1, totalHomeGoalsConceded / 3);
     analysisData.defensiveStrengthAway = 1 - Math.min(1, totalAwayGoalsConceded / 3);
+    
+    // Créer un score de base pondéré en utilisant toutes les données
+    createWeightedBaseScore();
 }
 
-// Créer un score de base pondéré en utilisant toutes les données
-function calculateWeightedBaseScore() {
+// Création d'un score de base pondéré
+function createWeightedBaseScore() {
     const { 
         topExactHome, topExactAway,
         homeAlignedHome, homeAlignedAway,
@@ -682,140 +810,102 @@ function calculateWeightedBaseScore() {
     let baseHome = topExactHome;
     let baseAway = topExactAway;
     
-    // Ajouter une influence des scores alignés en fonction de l'équipe favorite
-    let alignedInfluence = 0.3; // Poids de l'influence des scores alignés
+    // Importance variable des scores alignés en fonction de la cohérence des cotes
+    const alignmentWeight = 0.25 + (analysisData.oddsConsistency * 0.2);
     
+    // Ajouter une influence des scores alignés en fonction de l'équipe favorite
     if (favoriteTeam === 'home') {
-        baseHome = baseHome * 0.7 + homeAlignedHome * alignedInfluence;
-        baseAway = baseAway * 0.7 + homeAlignedAway * alignedInfluence;
+        baseHome = baseHome * (1 - alignmentWeight) + homeAlignedHome * alignmentWeight;
+        baseAway = baseAway * (1 - alignmentWeight) + homeAlignedAway * alignmentWeight;
     } else if (favoriteTeam === 'away') {
-        baseHome = baseHome * 0.7 + awayAlignedHome * alignedInfluence;
-        baseAway = baseAway * 0.7 + awayAlignedAway * alignedInfluence;
+        baseHome = baseHome * (1 - alignmentWeight) + awayAlignedHome * alignmentWeight;
+        baseAway = baseAway * (1 - alignmentWeight) + awayAlignedAway * alignmentWeight;
     } else { // Match nul
-        baseHome = baseHome * 0.7 + drawAlignedHome * alignedInfluence;
-        baseAway = baseAway * 0.7 + drawAlignedAway * alignedInfluence;
+        baseHome = baseHome * (1 - alignmentWeight) + drawAlignedHome * alignmentWeight;
+        baseAway = baseAway * (1 - alignmentWeight) + drawAlignedAway * alignmentWeight;
     }
     
-    // Ajuster en fonction des tendances offensives/défensives
-    // Les équipes avec une tendance offensive positive marquent plus
-    baseHome += analysisData.offensiveTrendHome * 0.5;
-    baseAway += analysisData.offensiveTrendAway * 0.5;
+    // Ajuster en fonction des tendances offensives
+    baseHome += analysisData.offensiveTrendHome * 0.3;
+    baseAway += analysisData.offensiveTrendAway * 0.3;
     
-    // Les équipes avec une défense forte concèdent moins
-    baseAway -= analysisData.defensiveStrengthHome * 0.5;
-    baseHome -= analysisData.defensiveStrengthAway * 0.5;
+    // Ajuster en fonction des défenses
+    baseAway -= analysisData.defensiveStrengthHome * 0.4;
+    baseHome -= analysisData.defensiveStrengthAway * 0.4;
     
-    // Probabilité de marquer influence le nombre total de buts
-    const scoringFactor = (analysisData.scoringProbability - 0.5) * 2; // -1 à 1
-    baseHome += scoringFactor * 0.5;
-    baseAway += scoringFactor * 0.5;
+    // Ajuster en fonction des expectedGoals calculés
+    const xgWeight = 0.3;
+    baseHome = baseHome * (1 - xgWeight) + analysisData.expectedGoals.home * xgWeight;
+    baseAway = baseAway * (1 - xgWeight) + analysisData.expectedGoals.away * xgWeight;
     
     // Stocker le score de base pondéré (valeurs décimales)
     analysisData.baseWeightedScore = {
-        home: baseHome,
-        away: baseAway
+        home: Math.max(0, baseHome),
+        away: Math.max(0, baseAway)
     };
 }
 
-// Calculer le score exact principal avec des ajustements contextuels
-function calculateAdvancedPrimaryScore() {
-    const { 
-        bttsOdds, overOdds, 
-        favoriteTeam
-    } = godPredictionData;
+// Génération de la matrice de probabilité des scores
+function generateScoreProbabilityMatrix() {
+    // Paramètres de base pour la distribution des scores
+    const homeBase = analysisData.baseWeightedScore.home;
+    const awayBase = analysisData.baseWeightedScore.away;
     
-    // Récupérer le score de base pondéré
-    let primaryHome = analysisData.baseWeightedScore.home;
-    let primaryAway = analysisData.baseWeightedScore.away;
+    // Créer une matrice 7x7 pour les scores de 0-0 à 6-6
+    const maxScore = 6;
+    const matrix = Array(maxScore + 1).fill().map(() => Array(maxScore + 1).fill(0));
     
-    // Arrondir à l'entier le plus proche pour commencer
-    let roundedHome = Math.round(primaryHome);
-    let roundedAway = Math.round(primaryAway);
-    
-    // Ajustements pour BTTS (les deux équipes marquent)
-    if (bttsOdds < 1.70 && (roundedHome === 0 || roundedAway === 0)) {
-        // Si BTTS très probable mais un score est à 0, s'assurer que chaque équipe marque
-        if (roundedHome === 0) roundedHome = 1;
-        if (roundedAway === 0) roundedAway = 1;
-    }
-    
-    // Ajustement pour over/under
-    const totalGoals = roundedHome + roundedAway;
-    if (overOdds < 1.60 && totalGoals < 3) {
-        // Si over 2.5 très probable, augmenter les buts
-        if (favoriteTeam === 'home') {
-            roundedHome += 1;
-        } else if (favoriteTeam === 'away') {
-            roundedAway += 1;
-        } else {
-            // Pour match nul, distribuer équitablement
-            if (Math.random() > 0.5) {
-                roundedHome += 1;
-            } else {
-                roundedAway += 1;
-            }
-        }
-    } else if (overOdds > 2.20 && totalGoals > 2) {
-        // Si over 2.5 peu probable, diminuer les buts
-        if (roundedHome > roundedAway && roundedHome > 0) {
-            roundedHome -= 1;
-        } else if (roundedAway > 0) {
-            roundedAway -= 1;
-        }
-    }
-    
-    // Vérifier la cohérence avec l'équipe favorite
-    if (favoriteTeam === 'home' && roundedHome <= roundedAway && analysisData.oddsConsistency > 0.4) {
-        // Corriger pour assurer que l'équipe favorite gagne
-        roundedHome = roundedAway + 1;
-    } else if (favoriteTeam === 'away' && roundedAway <= roundedHome && analysisData.oddsConsistency > 0.4) {
-        // Corriger pour assurer que l'équipe favorite gagne
-        roundedAway = roundedHome + 1;
-    } else if (favoriteTeam === 'draw' && roundedHome !== roundedAway) {
-        // Corriger pour un match nul
-        const avgScore = Math.round((roundedHome + roundedAway) / 2);
-        roundedHome = avgScore;
-        roundedAway = avgScore;
-    }
-    
-    // Générer la matrice de probabilité des scores pour utilisation ultérieure
-    generateScoreProbabilityMatrix(roundedHome, roundedAway);
-    
-    // Score final principal
-    godPredictionData.primaryScore = `${roundedHome}-${roundedAway}`;
-}
-
-// Générer une matrice de probabilité des scores possibles
-function generateScoreProbabilityMatrix(baseHome, baseAway) {
-    // Créer une matrice 5x5 pour les scores de 0-0 à 4-4
-    const matrix = [];
-    const maxScore = 4;
-    
+    // Distributions de probabilité pour chaque équipe
+    // Utiliser une distribution de Poisson modifiée
     for (let home = 0; home <= maxScore; home++) {
-        matrix[home] = [];
         for (let away = 0; away <= maxScore; away++) {
-            // Distance par rapport au score de base
-            const distance = Math.abs(home - baseHome) + Math.abs(away - baseAway);
+            // Calculer la probabilité en fonction de la distance aux valeurs attendues
+            let homeDist = Math.abs(home - homeBase);
+            let awayDist = Math.abs(away - awayBase);
             
-            // Probabilité inversement proportionnelle à la distance
-            let probability = 0;
-            if (distance === 0) {
-                probability = 0.30; // Score de base
-            } else if (distance === 1) {
-                probability = 0.15; // Score proche
-            } else if (distance === 2) {
-                probability = 0.07; // Score assez proche
-            } else {
-                probability = Math.max(0.01, 0.10 - (distance * 0.02)); // Scores plus éloignés
+            // Facteur de distance combinée
+            let combinedDistance = Math.sqrt(homeDist * homeDist + awayDist * awayDist);
+            
+            // Probabilité de base - diminue avec la distance
+            let probability = Math.exp(-combinedDistance * 1.5);
+            
+            // Ajustements supplémentaires en fonction du résultat et des cotes
+            if (godPredictionData.favoriteTeam === 'home' && home > away) {
+                probability *= (1 + godPredictionData.favoriteStrength * 0.5);
+            } else if (godPredictionData.favoriteTeam === 'away' && away > home) {
+                probability *= (1 + godPredictionData.favoriteStrength * 0.5);
+            } else if (godPredictionData.favoriteTeam === 'draw' && home === away) {
+                probability *= (1 + godPredictionData.favoriteStrength * 0.7);
             }
             
-            // Ajustements en fonction du type de résultat (victoire/nul)
-            if (godPredictionData.favoriteTeam === 'home' && home > away) {
-                probability *= 1.2; // Augmenter probabilité victoire domicile
-            } else if (godPredictionData.favoriteTeam === 'away' && away > home) {
-                probability *= 1.2; // Augmenter probabilité victoire extérieur
-            } else if (godPredictionData.favoriteTeam === 'draw' && home === away) {
-                probability *= 1.3; // Augmenter probabilité match nul
+            // Réduction pour les scores très élevés
+            if (home + away > 6) {
+                probability *= 0.8;
+            }
+            
+            // Ajustement pour les scores typiques
+            if (home === 1 && away === 1) probability *= 1.2; // 1-1 est commun
+            if (home === 0 && away === 0) probability *= 1.1; // 0-0 est assez commun
+            if (home === 2 && away === 1) probability *= 1.3; // 2-1 est très commun
+            if (home === 1 && away === 2) probability *= 1.1; // 1-2 est commun
+            if (home === 2 && away === 0) probability *= 1.2; // 2-0 est commun
+            if (home === 0 && away === 2) probability *= 1.1; // 0-2 est assez commun
+            
+            // Cohérence avec BTTS
+            if ((home > 0 && away > 0) && godPredictionData.bttsOdds < 1.8) {
+                probability *= 1.3; // Renforcer les scores où les deux équipes marquent si BTTS probable
+            }
+            if ((home === 0 || away === 0) && godPredictionData.bttsOdds > 2.2) {
+                probability *= 1.3; // Renforcer les clean sheets si BTTS improbable
+            }
+            
+            // Cohérence avec Over/Under
+            const totalGoals = home + away;
+            if (totalGoals > 2 && godPredictionData.overOdds < 1.8) {
+                probability *= 1.3; // Renforcer les scores avec beaucoup de buts si Over probable
+            }
+            if (totalGoals < 3 && godPredictionData.overOdds > 2.2) {
+                probability *= 1.3; // Renforcer les scores avec peu de buts si Over improbable
             }
             
             matrix[home][away] = probability;
@@ -840,24 +930,52 @@ function generateScoreProbabilityMatrix(baseHome, baseAway) {
     analysisData.scoreProbabilityMatrix = matrix;
 }
 
-// Calculer le score exact secondaire basé sur la matrice de probabilité
-function calculateAdvancedSecondaryScore() {
+// Sélection des scores exacts les plus probables
+function selectExactScores() {
     const matrix = analysisData.scoreProbabilityMatrix;
-    const [primaryHomeStr, primaryAwayStr] = godPredictionData.primaryScore.split('-');
-    const primaryHome = parseInt(primaryHomeStr);
-    const primaryAway = parseInt(primaryAwayStr);
+    const maxScore = matrix.length - 1;
+    
+    // Trouver le score avec la plus haute probabilité
+    let highestProb = 0;
+    let primaryHome = 0;
+    let primaryAway = 0;
+    
+    for (let home = 0; home <= maxScore; home++) {
+        for (let away = 0; away <= maxScore; away++) {
+            if (matrix[home][away] > highestProb) {
+                highestProb = matrix[home][away];
+                primaryHome = home;
+                primaryAway = away;
+            }
+        }
+    }
+    
+    // Vérifier si le score est cohérent avec l'équipe favorite
+    const isFavoriteConsistent = isScoreConsistentWithFavorite(primaryHome, primaryAway);
+    
+    // Si non cohérent et favori fort, ajuster le score
+    if (!isFavoriteConsistent && godPredictionData.favoriteStrength > 0.4) {
+        const adjustedScore = adjustScoreForFavorite(primaryHome, primaryAway);
+        primaryHome = adjustedScore.home;
+        primaryAway = adjustedScore.away;
+    }
+    
+    // Définir le score primaire
+    godPredictionData.primaryScore = `${primaryHome}-${primaryAway}`;
+    
+    // Créer une copie de la matrice pour le score secondaire
+    const tempMatrix = JSON.parse(JSON.stringify(matrix));
     
     // Exclure le score primaire déjà choisi
-    let tempMatrix = JSON.parse(JSON.stringify(matrix));
     tempMatrix[primaryHome][primaryAway] = 0;
     
     // Trouver le score avec la deuxième plus haute probabilité
-    let highestProb = 0;
+    highestProb = 0;
     let secondaryHome = 0;
     let secondaryAway = 0;
     
-    for (let home = 0; home < tempMatrix.length; home++) {
-        for (let away = 0; away < tempMatrix[home].length; away++) {
+    for (let home = 0; home <= maxScore; home++) {
+        for (let away = 0; away <= maxScore; away++) {
             if (tempMatrix[home][away] > highestProb) {
                 highestProb = tempMatrix[home][away];
                 secondaryHome = home;
@@ -866,33 +984,28 @@ function calculateAdvancedSecondaryScore() {
         }
     }
     
-    // Vérifier si le score secondaire est cohérent
-    if (!isScoreConsistent(secondaryHome, secondaryAway)) {
-        // Si incohérent, ajuster à partir du score principal
-        if (godPredictionData.favoriteTeam === 'home') {
-            secondaryHome = primaryHome;
-            secondaryAway = Math.max(0, primaryAway - 1);
-            if (secondaryHome <= secondaryAway) {
-                secondaryHome = secondaryAway + 1;
-            }
-        } else if (godPredictionData.favoriteTeam === 'away') {
-            secondaryAway = primaryAway;
-            secondaryHome = Math.max(0, primaryHome - 1);
-            if (secondaryAway <= secondaryHome) {
-                secondaryAway = secondaryHome + 1;
-            }
-        } else {
-            // Pour match nul, conserver le match nul
-            secondaryHome = secondaryAway = Math.max(1, primaryHome);
-        }
+    // Vérifier si le score secondaire maintient le même résultat que le primaire
+    const primaryResult = getResultType(primaryHome, primaryAway);
+    const secondaryResult = getResultType(secondaryHome, secondaryAway);
+    
+    // Si les résultats diffèrent et que le secondaire n'est pas cohérent avec le favori,
+    // chercher un score alternatif avec le même résultat que le primaire
+    if (primaryResult !== secondaryResult && 
+        !isScoreConsistentWithFavorite(secondaryHome, secondaryAway) &&
+        godPredictionData.favoriteStrength > 0.3) {
+        
+        // Créer un score secondaire plausible basé sur le score primaire
+        const alternativeScore = createPlausibleAlternativeScore(primaryHome, primaryAway, primaryResult);
+        secondaryHome = alternativeScore.home;
+        secondaryAway = alternativeScore.away;
     }
     
-    // Score final secondaire
+    // Définir le score secondaire
     godPredictionData.secondaryScore = `${secondaryHome}-${secondaryAway}`;
 }
 
-// Vérifier la cohérence d'un score avec l'équipe favorite
-function isScoreConsistent(home, away) {
+// Vérifier si un score est cohérent avec l'équipe favorite
+function isScoreConsistentWithFavorite(home, away) {
     const favoriteTeam = godPredictionData.favoriteTeam;
     
     if (favoriteTeam === 'home' && home <= away) {
@@ -906,8 +1019,169 @@ function isScoreConsistent(home, away) {
     return true;
 }
 
-// Calculer la prédiction du nombre de buts avec la règle de prudence (-1)
-function calculatePrudentGoalsPrediction() {
+// Ajuster un score pour être cohérent avec l'équipe favorite
+function adjustScoreForFavorite(home, away) {
+    const favoriteTeam = godPredictionData.favoriteTeam;
+    const favoriteStrength = godPredictionData.favoriteStrength;
+    
+    // Score ajusté par défaut
+    let adjustedHome = home;
+    let adjustedAway = away;
+    
+    if (favoriteTeam === 'home' && home <= away) {
+        // Ajuster pour victoire à domicile
+        const gap = Math.ceil(favoriteStrength * 2); // Écart basé sur la force du favori
+        adjustedHome = away + gap;
+    } else if (favoriteTeam === 'away' && away <= home) {
+        // Ajuster pour victoire à l'extérieur
+        const gap = Math.ceil(favoriteStrength * 2);
+        adjustedAway = home + gap;
+    } else if (favoriteTeam === 'draw' && home !== away) {
+        // Ajuster pour match nul
+        // Choisir une valeur moyenne arrondie
+        const avgScore = Math.round((home + away) / 2);
+        adjustedHome = avgScore;
+        adjustedAway = avgScore;
+    }
+    
+    return { home: adjustedHome, away: adjustedAway };
+}
+
+// Obtenir le type de résultat (victoire domicile, nul, victoire extérieur)
+function getResultType(home, away) {
+    if (home > away) return 'home';
+    if (away > home) return 'away';
+    return 'draw';
+}
+
+// Créer un score alternatif plausible avec le même résultat
+function createPlausibleAlternativeScore(primaryHome, primaryAway, resultType) {
+    let newHome = primaryHome;
+    let newAway = primaryAway;
+    
+    // Ajuster en fonction du type de résultat tout en gardant le même vainqueur
+    if (resultType === 'home') {
+        // Victoire à domicile - options typiques: 2-0, 2-1, 3-1, 1-0
+        const options = [
+            {home: 2, away: 0},
+            {home: 2, away: 1},
+            {home: 3, away: 1},
+            {home: 1, away: 0}
+        ];
+        // Éviter de choisir le même score que le primaire
+        const validOptions = options.filter(opt => 
+            opt.home !== primaryHome || opt.away !== primaryAway);
+        
+        if (validOptions.length > 0) {
+            // Choisir une option aléatoire
+            const randomOption = validOptions[Math.floor(Math.random() * validOptions.length)];
+            newHome = randomOption.home;
+            newAway = randomOption.away;
+        } else {
+            // Fallback: incrémenter légèrement le score tout en maintenant la victoire
+            newHome = primaryHome + 1;
+        }
+    } else if (resultType === 'away') {
+        // Victoire à l'extérieur - options typiques: 0-1, 1-2, 1-3, 0-2
+        const options = [
+            {home: 0, away: 1},
+            {home: 1, away: 2},
+            {home: 1, away: 3},
+            {home: 0, away: 2}
+        ];
+        const validOptions = options.filter(opt => 
+            opt.home !== primaryHome || opt.away !== primaryAway);
+        
+        if (validOptions.length > 0) {
+            const randomOption = validOptions[Math.floor(Math.random() * validOptions.length)];
+            newHome = randomOption.home;
+            newAway = randomOption.away;
+        } else {
+            // Fallback
+            newAway = primaryAway + 1;
+        }
+    } else {
+        // Match nul - options typiques: 0-0, 1-1, 2-2
+        const options = [
+            {home: 0, away: 0},
+            {home: 1, away: 1},
+            {home: 2, away: 2}
+        ];
+        const validOptions = options.filter(opt => 
+            opt.home !== primaryHome || opt.away !== primaryAway);
+        
+        if (validOptions.length > 0) {
+            const randomOption = validOptions[Math.floor(Math.random() * validOptions.length)];
+            newHome = randomOption.home;
+            newAway = randomOption.away;
+        } else {
+            // Fallback
+            newHome = newAway = Math.max(0, primaryHome) + 1;
+        }
+    }
+    
+    return { home: newHome, away: newAway };
+}
+
+// Déterminer le résultat du match
+function determineMatchResult() {
+    const { 
+        favoriteTeam, 
+        favoriteStrength,
+        homeOdds, 
+        drawOdds, 
+        awayOdds,
+        primaryScore
+    } = godPredictionData;
+    
+    // Analyser les probabilités basées sur les cotes
+    const homeWinProb = 1 / homeOdds;
+    const drawProb = 1 / drawOdds;
+    const awayWinProb = 1 / awayOdds;
+    
+    // Seuil pour déterminer si préférer une victoire directe ou double chance
+    // Adapter le seuil en fonction de l'écart des cotes et la cohérence
+    const thresholdForDirectWin = 0.4 + (analysisData.oddsConsistency * 0.2);
+    
+    // Déterminer le résultat en fonction du favori et de sa force
+    if (favoriteTeam === 'home') {
+        if (homeWinProb >= thresholdForDirectWin || favoriteStrength >= 0.5) {
+            godPredictionData.matchResult = "Victoire de l'équipe à domicile";
+        } else {
+            godPredictionData.matchResult = "Double chance 1X (Domicile ou Nul)";
+        }
+    } else if (favoriteTeam === 'away') {
+        if (awayWinProb >= thresholdForDirectWin || favoriteStrength >= 0.5) {
+            godPredictionData.matchResult = "Victoire de l'équipe à l'extérieur";
+        } else {
+            godPredictionData.matchResult = "Double chance X2 (Nul ou Extérieur)";
+        }
+    } else {
+        godPredictionData.matchResult = "Match nul";
+    }
+    
+    // Cas spécial: s'il y a un écart très mince entre les favoris, recommander double chance
+    const minOdds = Math.min(homeOdds, drawOdds, awayOdds);
+    const secondMinOdds = [homeOdds, drawOdds, awayOdds].sort((a, b) => a - b)[1];
+    
+    if (secondMinOdds - minOdds < 0.3 && favoriteStrength < 0.3) {
+        // Les deux meilleures options sont proches, recommander double chance
+        if (minOdds === homeOdds && secondMinOdds === drawOdds) {
+            godPredictionData.matchResult = "Double chance 1X (Domicile ou Nul)";
+        } else if (minOdds === awayOdds && secondMinOdds === drawOdds) {
+            godPredictionData.matchResult = "Double chance X2 (Nul ou Extérieur)";
+        } else if (minOdds === drawOdds) {
+            if (secondMinOdds === homeOdds) {
+                godPredictionData.matchResult = "Double chance 1X (Domicile ou Nul)";
+            } else {
+                godPredictionData.matchResult = "Double chance X2 (Nul ou Extérieur)";
+            }
+        }
+    }
+}
+
+// Calcul de la prédiction du nombre de buts (CORRIGÉ)
+function calculateCorrectGoalsPrediction() {
     // Extraire le score principal
     const [primaryHomeStr, primaryAwayStr] = godPredictionData.primaryScore.split('-');
     const primaryHome = parseInt(primaryHomeStr);
@@ -916,19 +1190,29 @@ function calculatePrudentGoalsPrediction() {
     // Calculer le total de buts
     const totalGoals = primaryHome + primaryAway;
     
-    // RÈGLE CRITIQUE: Soustraire 1 but pour la sécurité
-    const adjustedGoals = totalGoals - 1;
+    // CORRECTION: Appliquer la règle -1 but correctement
+    let adjustedGoals = totalGoals - 1;
+    
+    // Si le total des buts est déjà 0 ou 1, conserver +0.5 comme minimum
+    if (adjustedGoals < 0) {
+        adjustedGoals = 0;
+    }
     
     // Formater la prédiction (format paris sportifs)
     godPredictionData.goalsPrediction = `+${adjustedGoals}.5 buts`;
 }
 
-// Calculer les fiabilités basées sur la cohérence des données
-function calculateAdvancedReliabilities() {
+// Calcul des fiabilités des prédictions
+function calculatePredictionReliabilities() {
     const { 
         favoriteTeam, 
-        homeOdds, awayOdds,
-        primaryScore, secondaryScore
+        favoriteStrength,
+        homeOdds, 
+        awayOdds,
+        primaryScore, 
+        secondaryScore,
+        bttsOdds,
+        overOdds
     } = godPredictionData;
     
     // Calculer le score de confiance global basé sur la cohérence des données
@@ -936,61 +1220,87 @@ function calculateAdvancedReliabilities() {
     const alignmentWeight = 0.3;
     const trendWeight = 0.3;
     
+    // Score de cohérence des tendances
+    const trendCoherence = calculateTrendCoherenceScore();
+    
+    // Score de cohérence entre scores et cotes
+    const scoreAlignment = isScorePrimaryAlignedWithOdds();
+    
     analysisData.confidenceScore = 
         (analysisData.oddsConsistency * oddsWeight * 100) + 
-        (isScoreAlignedWithOdds() * alignmentWeight * 100) + 
-        (trendCoherenceScore() * trendWeight * 100);
+        (scoreAlignment * alignmentWeight * 100) + 
+        (trendCoherence * trendWeight * 100);
     
-    // Fiabilité du résultat du match
-    if (favoriteTeam === 'home' || favoriteTeam === 'away') {
-        const favoriteOdds = favoriteTeam === 'home' ? homeOdds : awayOdds;
-        
-        // Base de fiabilité calculée à partir des cotes et de la cohérence
-        let baseReliability = 85 + (2 - favoriteOdds) * 5 + analysisData.oddsConsistency * 10;
-        
-        if (favoriteOdds <= 1.50 || analysisData.oddsConsistency >= 0.6) {
-            godPredictionData.resultReliability = Math.min(98, Math.floor(baseReliability)); // 85-98%
-        } else {
-            godPredictionData.resultReliability = Math.min(95, Math.floor(baseReliability * 0.95)); // 85-95%
-        }
-    } else {
-        // Pour match nul
-        godPredictionData.resultReliability = Math.floor(80 + analysisData.confidenceScore * 0.15); // 80-92%
+    // Fiabilité du résultat du match (85-98%)
+    let resultBase = 85;
+    
+    // Augmenter la fiabilité en fonction de divers facteurs
+    // 1. Cohérence des cotes (jusqu'à +3%)
+    resultBase += Math.round(analysisData.oddsConsistency * 3);
+    
+    // 2. Force du favori (jusqu'à +5%)
+    resultBase += Math.round(favoriteStrength * 5);
+    
+    // 3. Score de confiance global (jusqu'à +5%)
+    resultBase += Math.round(analysisData.confidenceScore * 0.05);
+    
+    // 4. Réduire pour double chance (qui est intrinsèquement plus fiable)
+    if (godPredictionData.matchResult.includes("Double chance")) {
+        resultBase += 3;
     }
     
-    // Extraire les données du score principal
+    // Plafonner à 98%
+    godPredictionData.resultReliability = Math.min(98, resultBase);
+
+    // Fiabilité des scores exacts
+    // Extraire les scores pour calculer les probabilités
     const [primaryHomeStr, primaryAwayStr] = primaryScore.split('-');
     const primaryHome = parseInt(primaryHomeStr);
     const primaryAway = parseInt(primaryAwayStr);
     
-    // Probabilité du score principal selon la matrice
-    const primaryProb = analysisData.scoreProbabilityMatrix[primaryHome][primaryAway];
-    
-    // Extraire les données du score secondaire
     const [secondaryHomeStr, secondaryAwayStr] = secondaryScore.split('-');
     const secondaryHome = parseInt(secondaryHomeStr);
     const secondaryAway = parseInt(secondaryAwayStr);
     
-    // Probabilité du score secondaire selon la matrice
-    const secondaryProb = analysisData.scoreProbabilityMatrix[secondaryHome][secondaryAway];
+    // Probabilités selon la matrice
+    const primaryProb = analysisData.scoreProbabilityMatrix[primaryHome][primaryAway] || 0;
+    const secondaryProb = analysisData.scoreProbabilityMatrix[secondaryHome][secondaryAway] || 0;
     
-    // Fiabilité du score exact principal basée sur sa probabilité et la cohérence
-    godPredictionData.primaryScoreReliability = Math.floor(75 + primaryProb * 100 + analysisData.confidenceScore * 0.1);
-    godPredictionData.primaryScoreReliability = Math.min(90, godPredictionData.primaryScoreReliability); // 80-90%
+    // Base de fiabilité plus réaliste (65-85% pour primary, 60-75% pour secondary)
+    const primaryBase = 65;
+    const secondaryBase = 60;
     
-    // Fiabilité du score exact secondaire
-    godPredictionData.secondaryScoreReliability = Math.floor(70 + secondaryProb * 100 + analysisData.confidenceScore * 0.05);
-    godPredictionData.secondaryScoreReliability = Math.min(82, godPredictionData.secondaryScoreReliability); // 70-82%
+    // Calculer fiabilités basées sur probabilités et cohérence
+    godPredictionData.primaryScoreReliability = Math.min(85, Math.round(primaryBase + (primaryProb * 100) + (analysisData.confidenceScore * 0.1)));
+    godPredictionData.secondaryScoreReliability = Math.min(75, Math.round(secondaryBase + (secondaryProb * 100) + (analysisData.confidenceScore * 0.05)));
     
-    // Fiabilité du nombre de buts (toujours très élevée grâce à la règle -1)
-    const decimalPart = Math.floor(Math.random() * 10);
-    godPredictionData.goalsReliability = 99 + (decimalPart / 10); // 99.0-99.9%
+    // Fiabilité du nombre de buts - haute mais variable selon cohérence
+    const goalsBase = 95;
+    
+    // Facteurs influençant la fiabilité du nombre de buts
+    // 1. Cohérence entre over/under et le total des buts
+    const overUnderCoherence = calculateOverUnderCoherence();
+    
+    // 2. Un boost fixe puisque la règle -1 est prudente
+    const safetyBoost = 3;
+    
+    // 3. Variation décimale pour un effet visuel (99.1-99.9%)
+    const decimalPart = Math.floor(Math.random() * 9) + 1;
+    
+    // Calculer la fiabilité finale pour les buts
+    let goalsReliability = goalsBase + (overUnderCoherence * 1.5) + safetyBoost;
+    
+    // Plafonner à 99.9%
+    goalsReliability = Math.min(99.9, Math.max(goalsReliability, 99.0));
+    
+    // Formater avec une décimale
+    godPredictionData.goalsReliability = parseFloat(goalsReliability.toFixed(1));
 }
 
-// Vérifier si le score est aligné avec les cotes
-function isScoreAlignedWithOdds() {
+// Vérifier si le score principal est aligné avec les cotes
+function isScorePrimaryAlignedWithOdds() {
     const { 
-        favoriteTeam, 
+        favoriteTeam,
         primaryScore
     } = godPredictionData;
     
@@ -998,19 +1308,26 @@ function isScoreAlignedWithOdds() {
     const primaryHome = parseInt(primaryHomeStr);
     const primaryAway = parseInt(primaryAwayStr);
     
-    if (favoriteTeam === 'home' && primaryHome > primaryAway) {
+    // Déterminer le type de résultat du score
+    const scoreResult = getResultType(primaryHome, primaryAway);
+    
+    // Vérifier l'alignement avec le favori
+    if (favoriteTeam === scoreResult) {
         return 1.0; // Parfaitement aligné
-    } else if (favoriteTeam === 'away' && primaryAway > primaryHome) {
-        return 1.0; // Parfaitement aligné
-    } else if (favoriteTeam === 'draw' && primaryHome === primaryAway) {
-        return 1.0; // Parfaitement aligné
+    } else if (
+        (favoriteTeam === 'home' && scoreResult === 'draw') ||
+        (favoriteTeam === 'away' && scoreResult === 'draw') ||
+        (favoriteTeam === 'draw' && (scoreResult === 'home' || scoreResult === 'away'))
+    ) {
+        return 0.5; // Partiellement aligné (nul vs victoire)
     }
     
     return 0.2; // Mal aligné
 }
 
-// Score de cohérence des tendances
-function trendCoherenceScore() {
+// Calculer le score de cohérence des tendances
+function calculateTrendCoherenceScore() {
+    // Vérifier si les tendances offensives/défensives sont cohérentes avec le score prédit
     // Vérifier si les tendances offensives/défensives sont cohérentes avec le score prédit
     const [primaryHomeStr, primaryAwayStr] = godPredictionData.primaryScore.split('-');
     const primaryHome = parseInt(primaryHomeStr);
@@ -1039,6 +1356,30 @@ function trendCoherenceScore() {
     }
     
     return score;
+}
+
+// Calculer la cohérence entre over/under et le total des buts
+function calculateOverUnderCoherence() {
+    const { overOdds, primaryScore } = godPredictionData;
+    
+    // Extraire le total des buts du score principal
+    const [primaryHomeStr, primaryAwayStr] = primaryScore.split('-');
+    const primaryHome = parseInt(primaryHomeStr);
+    const primaryAway = parseInt(primaryAwayStr);
+    const totalGoals = primaryHome + primaryAway;
+    
+    // Vérifier cohérence avec over 2.5
+    if (overOdds < 1.8 && totalGoals > 2) {
+        return 1.0; // Très cohérent: over probable + score avec beaucoup de buts
+    } else if (overOdds > 2.2 && totalGoals < 3) {
+        return 1.0; // Très cohérent: over improbable + score avec peu de buts
+    } else if (overOdds < 2.0 && totalGoals >= 2) {
+        return 0.7; // Assez cohérent
+    } else if (overOdds > 2.0 && totalGoals <= 3) {
+        return 0.7; // Assez cohérent
+    }
+    
+    return 0.4; // Peu cohérent
 }
 
 // Affichage des résultats
@@ -1131,7 +1472,8 @@ function resetAndStart() {
         primaryScoreReliability: null,
         secondaryScoreReliability: null,
         goalsReliability: null,
-        favoriteTeam: null
+        favoriteTeam: null,
+        favoriteStrength: null
     };
 
     // Réinitialiser les analyses intermédiaires
@@ -1147,7 +1489,16 @@ function resetAndStart() {
             home: 0,
             away: 0
         },
-        scoreProbabilityMatrix: []
+        expectedGoals: {
+            home: 0,
+            away: 0
+        },
+        scoreProbabilityMatrix: [],
+        scoreThresholds: {
+            low: 1.5,
+            medium: 2.5,
+            high: 3.5
+        }
     };
     
     // Réinitialiser les formulaires
@@ -1179,4 +1530,30 @@ function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Fonction pour le retour haptique via Telegram
+function hapticFeedback(type) {
+    const tgWebApp = window.Telegram?.WebApp;
+    if (tgWebApp?.HapticFeedback) {
+        switch(type) {
+            case 'light':
+                tgWebApp.HapticFeedback.impactOccurred('light');
+                break;
+            case 'medium':
+                tgWebApp.HapticFeedback.impactOccurred('medium');
+                break;
+            case 'heavy':
+                tgWebApp.HapticFeedback.impactOccurred('heavy');
+                break;
+            case 'success':
+                tgWebApp.HapticFeedback.notificationOccurred('success');
+                break;
+            case 'error':
+                tgWebApp.HapticFeedback.notificationOccurred('error');
+                break;
+            default:
+                tgWebApp.HapticFeedback.impactOccurred('medium');
+        }
+    }
 }
