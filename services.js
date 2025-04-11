@@ -1,6 +1,7 @@
 /**
  * Services - BetScale Pro
  * Script de gestion des services, popups et formulaires
+ * Version mise à jour avec sécurisation des clés API
  */
 
 // Contenu des aperçus de services
@@ -145,7 +146,13 @@ const serviceDetails = {
 };
 
 // Adresse email de l'administrateur pour recevoir les demandes
-const adminEmail = "alve08@protonmail.com";
+const adminEmail = "alvecapital60@gmail.com";
+
+// Configuration EmailJS - IDs de service et template 
+const emailjsConfig = {
+    serviceId: "service_9t2f1m7",
+    templateId: "template_wvq8vbc"
+};
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
@@ -154,6 +161,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialisation des particules
     initParticles();
+    
+    // Initialisation EmailJS (sécurisée)
+    initEmailJS();
     
     // Gestionnaires d'événements pour les boutons d'aperçu
     document.querySelectorAll('.btn-preview').forEach(button => {
@@ -220,6 +230,25 @@ function initTelegramWebApp() {
         
         // Configuration du thème
         document.documentElement.className = tgWebApp.colorScheme || 'dark';
+    }
+}
+
+// Initialisation d'EmailJS avec gestion sécurisée des clés API
+function initEmailJS() {
+    // Les clés seront chargées depuis Render Environment Variables
+    // Pour le développement local, on peut utiliser des clés de test
+    // Mais en production, on utilisera les variables d'environnement
+    
+    // Vérifier si window.EMAILJS_PUBLIC_KEY existe (injecté par Render dans index.html)
+    const publicKey = window.EMAILJS_PUBLIC_KEY || null;
+    
+    if (publicKey) {
+        // Initialiser EmailJS si la clé est disponible
+        emailjs.init(publicKey);
+        console.log("EmailJS initialisé avec succès");
+    } else {
+        // Message pour le développement
+        console.log("EmailJS non initialisé - clé API manquante");
     }
 }
 
@@ -440,14 +469,15 @@ function submitInterestForm() {
         fullName: fullName,
         email: email,
         budget: budget,
-        message: message || 'Aucun message fourni'
+        message: message || 'Aucun message fourni',
+        date: new Date().toLocaleString()
     };
-    
-    // Afficher la réponse de succès (dans une vraie implémentation, cela se ferait après confirmation du serveur)
-    showFormSuccess();
     
     // Envoyer l'email à l'administrateur
     sendEmailToAdmin(formData);
+    
+    // Afficher la réponse de succès
+    showFormSuccess();
     
     // Effet haptic sur mobile via Telegram WebApp
     const tgWebApp = window.Telegram?.WebApp;
@@ -455,8 +485,8 @@ function submitInterestForm() {
         tgWebApp.HapticFeedback.notificationOccurred('success');
     }
     
-    // Dans une implémentation réelle, vous enverriez ces données à votre serveur
-    console.log('Données du formulaire :', formData);
+    // Stocker la demande localement pour accès administrateur
+    storeRequestLocally(formData);
 }
 
 // Afficher le message de succès du formulaire
@@ -470,62 +500,41 @@ function showFormSuccess() {
     }, 3000);
 }
 
-// Envoyer un email à l'administrateur
+// Envoyer un email à l'administrateur en utilisant EmailJS de façon sécurisée
 function sendEmailToAdmin(formData) {
-    // Construire le corps de l'email
-    const emailSubject = `Nouvelle demande de service: ${formData.service}`;
-    const emailBody = `
-Nouvelle demande de service reçue:
-
-Service demandé: ${formData.service}
-Nom: ${formData.fullName}
-Email: ${formData.email}
-Budget proposé: ${formData.budget} $
-Message: ${formData.message}
-
-Date: ${new Date().toLocaleString()}
-`;
-
-    // Utiliser l'API Email.js (simulée ici - à remplacer par votre implémentation réelle)
-    // Dans une implémentation réelle, vous utiliseriez un service comme EmailJS, SendGrid, ou une API backend
-    
-    // Option 1: Utiliser mailto (solution simple mais qui ouvre le client email par défaut)
-    const mailtoLink = `mailto:${adminEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    // Créer un lien invisible et cliquer dessus (simulation d'envoi)
-    // Note: Cette méthode n'est pas idéale car elle ouvre le client email de l'utilisateur
-    // Dans une implémentation réelle, vous utiliseriez un service d'envoi d'emails côté serveur
-    /*
-    const link = document.createElement('a');
-    link.href = mailtoLink;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    */
-    
-    // Option 2: En production, vous utiliseriez un service comme EmailJS
-    // Exemple avec EmailJS (décommenté pour montrer l'implémentation, mais nécessite d'ajouter la bibliothèque)
-    /*
-    emailjs.send("service_id", "template_id", {
+    // Construire le corps de l'email pour le template
+    const emailParams = {
         to_email: adminEmail,
         from_name: formData.fullName,
         from_email: formData.email,
-        subject: emailSubject,
-        message: emailBody
-    })
-    .then(function(response) {
-        console.log("Email envoyé avec succès!", response);
-    }, function(error) {
-        console.error("Échec de l'envoi de l'email:", error);
-    });
-    */
-    
-    // Option 3: Stocker les demandes dans localStorage ou IndexedDB pour un accès administrateur local
-    // Cette méthode est utile pour une démonstration ou une utilisation locale
-    storeRequestLocally(formData);
-    
-    console.log(`Email envoyé à ${adminEmail} avec le sujet: ${emailSubject}`);
+        service_name: formData.service,
+        budget: formData.budget,
+        message: formData.message,
+        date: formData.date
+    };
+
+    // Utiliser EmailJS pour envoyer l'email
+    try {
+        // Utiliser les IDs depuis la configuration
+        emailjs.send(
+            emailjsConfig.serviceId, 
+            emailjsConfig.templateId, 
+            emailParams
+        )
+        .then(function(response) {
+            console.log("Email envoyé avec succès!", response);
+        }, function(error) {
+            console.error("Échec de l'envoi de l'email:", error);
+            // Fallback si l'envoi échoue
+            storeRequestLocally(formData);
+            console.log("La demande a été stockée localement suite à l'échec de l'envoi");
+        });
+    } catch (e) {
+        console.error("Erreur lors de l'envoi de l'email:", e);
+        // Fallback si emailjs n'est pas correctement initialisé
+        storeRequestLocally(formData);
+        console.log("La demande a été stockée localement suite à une erreur");
+    }
 }
 
 // Stocker la demande localement (pour une démo ou accès administrateur local)
