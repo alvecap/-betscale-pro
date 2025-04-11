@@ -1,5 +1,5 @@
 /**
- * God Mode V2 - BetScale Pro
+ * God Mode - BetScale Pro
  * Script avancé de gestion des prédictions et navigation entre les sections
  * Modèle statistique complexe pour des prédictions ultra-précises
  */
@@ -81,6 +81,7 @@ let analysisData = {
     matchProfile: '',          // 'defensive', 'balanced', 'offensive', 'very-offensive'
     gameIntensity: 0,          // Intensité globale (0-1)
     favoriteStrength: 0,       // Force du favori (0-1)
+    favorite: '',              // Équipe favorite ('home', 'away', 'draw')
     
     // Matrices probabilistes pour le calcul des scores
     scoreMatrix: [],           // Matrice de probabilité des scores
@@ -108,8 +109,6 @@ let currentSection = 0; // Section actuelle (0 = intro, 1-9 = sections)
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Initialisation de God Mode V2...");
-    
     // Vérifier le statut VIP et administrateur
     checkVipAndAdminStatus();
     
@@ -1046,7 +1045,6 @@ function poissonProbability(k, lambda) {
     
     return result;
 }
-
 // Détermination du résultat du match
 function calculateMatchResult() {
     // Décision basée sur probabilités et force du favori
@@ -1273,6 +1271,7 @@ function showResults() {
     }, 1000);
     
     // Effet de vibration sur mobile via Telegram WebApp
+    // Effet de vibration sur mobile via Telegram WebApp
     const tgWebApp = window.Telegram?.WebApp;
     if (tgWebApp?.HapticFeedback) {
         tgWebApp.HapticFeedback.notificationOccurred('success');
@@ -1313,7 +1312,7 @@ function resetAndStart() {
         homeAttackStrength: 0, homeDefenseStrength: 0,
         awayAttackStrength: 0, awayDefenseStrength: 0,
         firstHalfTendency: 0, secondHalfTendency: 0, scorelineEvolution: 0,
-        matchProfile: '', gameIntensity: 0, favoriteStrength: 0,
+        matchProfile: '', gameIntensity: 0, favoriteStrength: 0, favorite: '',
         scoreMatrix: [], exactScoreProbs: {},
         homeWinProb: 0, drawProb: 0, awayWinProb: 0, bttsProb: 0,
         expectedGoals: { home: 0, away: 0 }
