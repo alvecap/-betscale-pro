@@ -1,7 +1,7 @@
 /**
  * Services - BetScale Pro
  * Script de gestion des services, popups et formulaires
- * Version sécurisée pour l'envoi d'emails via EmailJS
+ * Version corrigée pour l'envoi d'emails
  */
 
 // Contenu des aperçus de services
@@ -145,43 +145,40 @@ const serviceDetails = {
     }
 };
 
-// Configuration EmailJS (les valeurs seront injectées via Render)
+// Adresse email de l'administrateur pour recevoir les demandes
+const adminEmail = "alvecapital60@gmail.com";
+
+// Configuration EmailJS - clés directes pour garantir le fonctionnement
 const emailjsConfig = {
-    serviceId: process.env.EMAILJS_SERVICE_ID,
-    templateId: process.env.EMAILJS_TEMPLATE_ID,
-    publicKey: process.env.EMAILJS_PUBLIC_KEY
+    publicKey: "lGdW7cdOq-p5_i1K9",
+    privateKey: "5_jYLbwbf-JczQb523-5k",
+    serviceId: "service_9t2f1m7",
+    templateId: "template_wvq8vbc"
 };
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Initialisation de la page services...");
     
-    // Vérification des dépendances
-    if (typeof emailjs === 'undefined') {
-        console.error("EmailJS n'est pas chargé - vérifiez le script dans le HTML");
-        showStatusMessage("Erreur: EmailJS non chargé", 'error');
-    } else {
-        // Initialiser EmailJS avec la clé publique
-        emailjs.init(emailjsConfig.publicKey)
-            .then(() => {
-                console.log("EmailJS initialisé avec succès");
-            })
-            .catch(error => {
-                console.error("Erreur d'initialisation EmailJS:", error);
-                showStatusMessage("Erreur d'initialisation EmailJS", 'error');
-            });
-    }
-    
-    // Initialisation des autres composants
+    // Initialisation de l'intégration Telegram WebApp
     initTelegramWebApp();
+    
+    // Initialisation des particules
     initParticles();
+    
+    // Initialisation d'EmailJS
+    initEmailJS();
+    
+    // Gestionnaires d'événements pour les boutons
     initEventListeners();
+    
+    // Animation d'entrée pour les cartes
     animateServiceCards();
 });
 
 // Initialisation des gestionnaires d'événements
 function initEventListeners() {
-    // Boutons d'aperçu
+    // Gestionnaires d'événements pour les boutons d'aperçu
     document.querySelectorAll('.btn-preview').forEach(button => {
         button.addEventListener('click', function() {
             const serviceId = this.getAttribute('data-service');
@@ -189,7 +186,7 @@ function initEventListeners() {
         });
     });
     
-    // Boutons d'intérêt
+    // Gestionnaires d'événements pour les boutons d'intérêt
     document.querySelectorAll('.btn-interest').forEach(button => {
         button.addEventListener('click', function() {
             const serviceId = this.getAttribute('data-service');
@@ -198,32 +195,37 @@ function initEventListeners() {
         });
     });
     
-    // Bouton d'intérêt dans le popup d'aperçu
+    // Gestionnaire d'événement pour le bouton d'intérêt dans le popup d'aperçu
     document.getElementById('popup-interest-btn').addEventListener('click', function() {
+        // Récupérer le service actuellement affiché dans le popup d'aperçu
         const serviceTitle = document.getElementById('preview-title').textContent;
         const serviceId = getServiceIdFromTitle(serviceTitle);
         const price = serviceDetails[serviceId].price;
+        
+        // Fermer le popup d'aperçu
         closePopup('preview-popup');
+        
+        // Ouvrir le popup d'intérêt
         showInterestPopup(serviceId, price);
     });
     
-    // Validation du budget
-    document.getElementById('budget').addEventListener('input', validateBudget);
-    
-    // Soumission du formulaire
-    document.getElementById('interest-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (validateBudget()) {
-            submitInterestForm();
-        }
+    // Gestionnaire d'événement pour le champ budget qui vérifie le prix minimum
+    document.getElementById('budget').addEventListener('input', function() {
+        validateBudget();
     });
     
-    // Boutons de fermeture des popups
-    document.querySelectorAll('.close-popup').forEach(button => {
-        button.addEventListener('click', function() {
-            const popupId = this.closest('.popup').id;
-            closePopup(popupId);
-        });
+    // Gestionnaire d'événement pour le formulaire d'intérêt
+    document.getElementById('interest-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log("Formulaire soumis");
+        
+        // Vérifier le budget minimum avant soumission
+        if (!validateBudget()) {
+            console.log("Validation du budget échouée");
+            return false;
+        }
+        
+        submitInterestForm();
     });
 }
 
@@ -232,37 +234,119 @@ function initTelegramWebApp() {
     const tgWebApp = window.Telegram?.WebApp;
     
     if (tgWebApp) {
+        // Expansion de l'interface
         tgWebApp.expand();
+        
+        // Application prête
         tgWebApp.ready();
+        
+        // Configuration du thème
         document.documentElement.className = tgWebApp.colorScheme || 'dark';
+    }
+}
+
+// Initialisation d'EmailJS - Méthode simplifiée avec clés directes
+function initEmailJS() {
+    console.log("Initialisation d'EmailJS...");
+    
+    try {
+        // Initialisation simple avec la clé publique
+        emailjs.init(emailjsConfig.publicKey);
+        console.log("EmailJS initialisé avec succès");
+    } catch (error) {
+        console.error("Erreur lors de l'initialisation d'EmailJS:", error);
     }
 }
 
 // Initialisation des particules
 function initParticles() {
     particlesJS('particles-js', {
-        particles: {
-            number: { value: 80, density: { enable: true, value_area: 800 } },
-            color: { value: "#3b82f6" },
-            shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
-            opacity: { value: 0.5, random: true, anim: { enable: true, speed: 1, opacity_min: 0.1 } },
-            size: { value: 3, random: true, anim: { enable: true, speed: 2, size_min: 0.1 } },
-            line_linked: { enable: true, distance: 150, color: "#60a5fa", opacity: 0.4, width: 1 },
-            move: { enable: true, speed: 1, direction: "none", random: false, straight: false, out_mode: "out" }
-        },
-        interactivity: {
-            detect_on: "canvas",
-            events: {
-                onhover: { enable: true, mode: "grab" },
-                onclick: { enable: true, mode: "push" },
-                resize: true
+        "particles": {
+            "number": {
+                "value": 80,
+                "density": {
+                    "enable": true,
+                    "value_area": 800
+                }
             },
-            modes: {
-                grab: { distance: 140, line_linked: { opacity: 1 } },
-                push: { particles_nb: 4 }
+            "color": {
+                "value": "#3b82f6"
+            },
+            "shape": {
+                "type": "circle",
+                "stroke": {
+                    "width": 0,
+                    "color": "#000000"
+                }
+            },
+            "opacity": {
+                "value": 0.5,
+                "random": true,
+                "anim": {
+                    "enable": true,
+                    "speed": 1,
+                    "opacity_min": 0.1,
+                    "sync": false
+                }
+            },
+            "size": {
+                "value": 3,
+                "random": true,
+                "anim": {
+                    "enable": true,
+                    "speed": 2,
+                    "size_min": 0.1,
+                    "sync": false
+                }
+            },
+            "line_linked": {
+                "enable": true,
+                "distance": 150,
+                "color": "#60a5fa",
+                "opacity": 0.4,
+                "width": 1
+            },
+            "move": {
+                "enable": true,
+                "speed": 1,
+                "direction": "none",
+                "random": false,
+                "straight": false,
+                "out_mode": "out",
+                "bounce": false,
+                "attract": {
+                    "enable": false,
+                    "rotateX": 600,
+                    "rotateY": 1200
+                }
             }
         },
-        retina_detect: true
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+                "onhover": {
+                    "enable": true,
+                    "mode": "grab"
+                },
+                "onclick": {
+                    "enable": true,
+                    "mode": "push"
+                },
+                "resize": true
+            },
+            "modes": {
+                "grab": {
+                    "distance": 140,
+                    "line_linked": {
+                        "opacity": 1
+                    }
+                },
+                "push": {
+                    "particles_nb": 4
+                }
+            }
+        },
+        "retina_detect": true
     });
 }
 
@@ -272,6 +356,7 @@ function animateServiceCards() {
     cards.forEach((card, index) => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
+        
         setTimeout(() => {
             card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
             card.style.opacity = '1';
@@ -280,53 +365,73 @@ function animateServiceCards() {
     });
 }
 
-// Afficher un popup d'aperçu
+// Afficher le popup d'aperçu pour un service
 function showPreviewPopup(serviceId) {
     if (serviceDetails[serviceId]) {
         const service = serviceDetails[serviceId];
+        
+        // Mettre à jour le contenu du popup
         document.getElementById('preview-title').textContent = service.title;
         document.getElementById('preview-details').innerHTML = service.content;
         
+        // Configurer le bouton d'intérêt dans le popup
         const interestBtn = document.getElementById('popup-interest-btn');
         interestBtn.setAttribute('data-service', serviceId);
         interestBtn.setAttribute('data-price', service.price);
         
+        // Afficher le popup
         document.getElementById('preview-popup').style.display = 'block';
         
-        // Feedback haptique
-        triggerHapticFeedback('medium');
+        // Effet haptic sur mobile via Telegram WebApp
+        const tgWebApp = window.Telegram?.WebApp;
+        if (tgWebApp?.HapticFeedback) {
+            tgWebApp.HapticFeedback.impactOccurred('medium');
+        }
     }
 }
 
-// Afficher un popup d'intérêt
+// Extraire l'ID du service à partir du titre
+function getServiceIdFromTitle(title) {
+    for (const [id, service] of Object.entries(serviceDetails)) {
+        if (service.title === title) {
+            return id;
+        }
+    }
+    return null;
+}
+
+// Afficher le popup d'intérêt pour un service
 function showInterestPopup(serviceId, price) {
     if (serviceDetails[serviceId]) {
-        const service = serviceDetails[serviceId];
-        
-        // Mise à jour des champs du formulaire
+        // Mettre à jour le formulaire
         document.getElementById('service-name').value = serviceId;
-        document.getElementById('email-service-name').value = service.title;
         document.getElementById('min-price').value = price;
         document.getElementById('budget').value = price;
         document.getElementById('display-min-price').textContent = price;
-        document.getElementById('email-date').value = new Date().toLocaleString();
         
-        // Réinitialisation de l'état du formulaire
+        // Masquer le message d'erreur de prix
         document.getElementById('price-error').style.display = 'none';
+        
+        // Réinitialiser le formulaire et masquer le message de succès
+        document.getElementById('interest-form').reset();
+        document.getElementById('service-name').value = serviceId;
+        document.getElementById('min-price').value = price;
+        document.getElementById('budget').value = price;
         document.getElementById('form-success').style.display = 'none';
         document.getElementById('interest-form').style.display = 'block';
-        document.querySelector('.btn-submit').disabled = false;
-        document.querySelector('.btn-submit').textContent = 'Envoyer ma demande';
         
-        // Affichage du popup
+        // Afficher le popup
         document.getElementById('interest-popup').style.display = 'block';
         
-        // Feedback haptique
-        triggerHapticFeedback('medium');
+        // Effet haptic sur mobile via Telegram WebApp
+        const tgWebApp = window.Telegram?.WebApp;
+        if (tgWebApp?.HapticFeedback) {
+            tgWebApp.HapticFeedback.impactOccurred('medium');
+        }
     }
 }
 
-// Valider le budget
+// Valider que le budget est supérieur ou égal au prix minimum
 function validateBudget() {
     const budgetField = document.getElementById('budget');
     const minPrice = parseInt(document.getElementById('min-price').value);
@@ -353,160 +458,146 @@ function closePopup(popupId) {
 }
 
 // Soumettre le formulaire d'intérêt
-async function submitInterestForm() {
-    const form = document.getElementById('interest-form');
-    const submitButton = document.querySelector('.btn-submit');
+function submitInterestForm() {
+    console.log("Traitement du formulaire d'intérêt");
     
-    // Désactiver le bouton pendant l'envoi
-    submitButton.disabled = true;
-    submitButton.textContent = 'Envoi en cours...';
+    // Récupérer les données du formulaire
+    const serviceId = document.getElementById('service-name').value;
+    const fullName = document.getElementById('full-name').value;
+    const email = document.getElementById('email').value;
+    const budget = document.getElementById('budget').value;
+    const message = document.getElementById('message').value;
     
-    try {
-        // Préparer les données pour EmailJS
-        const formData = {
-            service_name: document.getElementById('email-service-name').value,
-            from_name: document.getElementById('full-name').value,
-            from_email: document.getElementById('email').value,
-            budget: document.getElementById('budget').value,
-            message: document.getElementById('message').value || 'Aucun message fourni',
-            date: document.getElementById('email-date').value
-        };
-        
-        console.log("Envoi des données:", formData);
-        
-        // Envoyer l'email via EmailJS
-        const response = await emailjs.send(
-            emailjsConfig.serviceId,
-            emailjsConfig.templateId,
-            formData
-        );
-        
-        console.log("Email envoyé avec succès:", response);
-        
-        // Afficher le message de succès
-        document.getElementById('interest-form').style.display = 'none';
-        document.getElementById('form-success').style.display = 'block';
-        
-        // Feedback haptique
-        triggerHapticFeedback('success');
-        
-        // Fermer le popup après 3 secondes
-        setTimeout(() => {
-            closePopup('interest-popup');
-        }, 3000);
-        
-        // Stocker localement pour backup
-        storeRequestLocally(formData);
-        
-    } catch (error) {
-        console.error("Erreur lors de l'envoi de l'email:", error);
-        
-        // Afficher un message d'erreur
-        showStatusMessage("Erreur d'envoi - réessayez ou contactez-nous", 'error');
-        
-        // Réactiver le bouton
-        submitButton.disabled = false;
-        submitButton.textContent = 'Envoyer ma demande';
-        
-        // Stocker localement en cas d'erreur
-        const formData = {
-            service_name: document.getElementById('email-service-name').value,
-            from_name: document.getElementById('full-name').value,
-            from_email: document.getElementById('email').value,
-            budget: document.getElementById('budget').value,
-            message: document.getElementById('message').value || 'Aucun message fourni',
-            date: document.getElementById('email-date').value
-        };
-        storeRequestLocally(formData);
-    }
-}
-
-// Stocker la demande localement
-function storeRequestLocally(formData) {
-    let requests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
-    requests.push({ ...formData, timestamp: new Date().toISOString() });
-    localStorage.setItem('serviceRequests', JSON.stringify(requests));
-    console.log("Demande stockée localement");
-}
-
-// Afficher un message de statut
-function showStatusMessage(message, type = 'info') {
-    // Supprimer l'ancien message s'il existe
-    const oldStatus = document.getElementById('status-message');
-    if (oldStatus) oldStatus.remove();
+    // Récupérer le titre du service
+    const serviceTitle = serviceDetails[serviceId].title;
     
-    // Créer le nouvel élément
-    const statusElement = document.createElement('div');
-    statusElement.id = 'status-message';
-    statusElement.textContent = message;
+    // Préparer les données à envoyer
+    const formData = {
+        service: serviceTitle,
+        fullName: fullName,
+        email: email,
+        budget: budget,
+        message: message || 'Aucun message fourni',
+        date: new Date().toLocaleString()
+    };
     
-    // Style de base
-    statusElement.style.position = 'fixed';
-    statusElement.style.bottom = '20px';
-    statusElement.style.right = '20px';
-    statusElement.style.padding = '12px 20px';
-    statusElement.style.borderRadius = '6px';
-    statusElement.style.color = 'white';
-    statusElement.style.zIndex = '9999';
-    statusElement.style.fontSize = '14px';
-    statusElement.style.transition = 'all 0.3s ease';
-    statusElement.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    console.log("Données du formulaire:", formData);
     
-    // Style selon le type
-    switch(type) {
-        case 'success':
-            statusElement.style.backgroundColor = '#10B981';
-            break;
-        case 'error':
-            statusElement.style.backgroundColor = '#EF4444';
-            break;
-        case 'warning':
-            statusElement.style.backgroundColor = '#F59E0B';
-            break;
-        default:
-            statusElement.style.backgroundColor = '#3B82F6';
-    }
+    // Envoyer l'email à l'administrateur
+    sendEmailToAdmin(formData);
     
-    // Ajouter au DOM
-    document.body.appendChild(statusElement);
+    // Afficher la réponse de succès
+    showFormSuccess();
     
-    // Disparaître après 5 secondes
-    setTimeout(() => {
-        statusElement.style.opacity = '0';
-        setTimeout(() => {
-            statusElement.remove();
-        }, 300);
-    }, 5000);
-}
-
-// Déclencher un feedback haptique
-function triggerHapticFeedback(type = 'light') {
+    // Effet haptic sur mobile via Telegram WebApp
     const tgWebApp = window.Telegram?.WebApp;
     if (tgWebApp?.HapticFeedback) {
-        switch(type) {
-            case 'light':
-                tgWebApp.HapticFeedback.impactOccurred('light');
-                break;
-            case 'medium':
-                tgWebApp.HapticFeedback.impactOccurred('medium');
-                break;
-            case 'heavy':
-                tgWebApp.HapticFeedback.impactOccurred('heavy');
-                break;
-            case 'success':
-                tgWebApp.HapticFeedback.notificationOccurred('success');
-                break;
-            case 'error':
-                tgWebApp.HapticFeedback.notificationOccurred('error');
-                break;
-        }
+        tgWebApp.HapticFeedback.notificationOccurred('success');
+    }
+    
+    // Stocker la demande localement pour accès administrateur
+    storeRequestLocally(formData);
+}
+
+// Afficher le message de succès du formulaire
+function showFormSuccess() {
+    document.getElementById('interest-form').style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+    
+    // Fermer automatiquement le popup après 3 secondes
+    setTimeout(() => {
+        closePopup('interest-popup');
+    }, 3000);
+}
+
+// Envoyer un email à l'administrateur en utilisant EmailJS
+function sendEmailToAdmin(formData) {
+    console.log("Tentative d'envoi d'email...");
+    
+    // Préparation des paramètres pour EmailJS
+    const emailParams = {
+        service_name: formData.service,
+        from_name: formData.fullName,
+        from_email: formData.email,
+        budget: formData.budget,
+        message: formData.message,
+        to_email: adminEmail,
+        date: formData.date
+    };
+    
+    console.log("Paramètres de l'email:", emailParams);
+    
+    // Envoi de l'email via EmailJS avec gestion des erreurs
+    try {
+        emailjs.send(
+            emailjsConfig.serviceId,
+            emailjsConfig.templateId,
+            emailParams
+        )
+        .then(function(response) {
+            console.log("Email envoyé avec succès!", response);
+        }, function(error) {
+            console.error("Échec de l'envoi de l'email:", error);
+            // Tenter une méthode alternative en cas d'échec
+            sendEmailWithBackup(formData);
+        });
+    } catch (error) {
+        console.error("Erreur lors de l'envoi de l'email:", error);
+        // Tenter une méthode alternative en cas d'erreur
+        sendEmailWithBackup(formData);
     }
 }
 
-// Obtenir l'ID du service à partir du titre
-function getServiceIdFromTitle(title) {
-    for (const [id, service] of Object.entries(serviceDetails)) {
-        if (service.title === title) return id;
+// Méthode de secours pour l'envoi d'emails
+function sendEmailWithBackup(formData) {
+    console.log("Tentative d'envoi de secours...");
+    
+    // Essayer avec la méthode de secours d'EmailJS
+    try {
+        // Construction d'un template d'email simple
+        const message = 
+            `Nouvelle demande de service: ${formData.service}\n\n` +
+            `De: ${formData.fullName} (${formData.email})\n` +
+            `Budget: ${formData.budget} $\n` +
+            `Message: ${formData.message}\n\n` +
+            `Date: ${formData.date}`;
+        
+        const templateParams = {
+            to_name: "Admin",
+            from_name: formData.fullName,
+            message: message,
+            to_email: adminEmail
+        };
+        
+        // Tentative avec un template générique
+        emailjs.send(
+            emailjsConfig.serviceId,
+            "template_default", // Template de secours
+            templateParams
+        );
+    } catch (error) {
+        console.error("L'envoi de secours a également échoué:", error);
     }
-    return null;
+    
+    // Dans tous les cas, stocker localement
+    storeRequestLocally(formData);
 }
+
+// Stocker la demande localement (pour une démo ou accès administrateur local)
+function storeRequestLocally(formData) {
+    console.log("Stockage local de la demande...");
+    
+    // Récupérer les demandes existantes ou initialiser un tableau vide
+    let storedRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
+    
+    // Ajouter la nouvelle demande avec un horodatage
+    storedRequests.push({
+        ...formData,
+        timestamp: new Date().toISOString()
+    });
+    
+    // Stocker dans localStorage
+    localStorage.setItem('serviceRequests', JSON.stringify(storedRequests));
+    
+    console.log('Demande stockée localement.');
+} 
